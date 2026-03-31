@@ -141,7 +141,6 @@ public class NoiseMapByReceiverMakerTest {
             noiseMapByReceiverMaker.setMaximumPropagationDistance(1000);
             noiseMapByReceiverMaker.setHeightField("HEIGHT");
             noiseMapByReceiverMaker.setInputMode(SceneDatabaseInputSettings.INPUT_MODE.INPUT_MODE_LW_DEN);
-            noiseMapByReceiverMaker.getNoiseMapDatabaseParameters().setCoefficientVersion(1);
 
             // Use train directivity functions instead of discrete directivity
             noiseMapByReceiverMaker.getSceneInputSettings().setUseTrainDirectivity(true);
@@ -181,7 +180,6 @@ public class NoiseMapByReceiverMakerTest {
             noiseMapByReceiverMaker.setMaximumPropagationDistance(1000);
             noiseMapByReceiverMaker.setHeightField("HEIGHT");
             noiseMapByReceiverMaker.setInputMode(SceneDatabaseInputSettings.INPUT_MODE.INPUT_MODE_LW_DEN);
-            noiseMapByReceiverMaker.getNoiseMapDatabaseParameters().setCoefficientVersion(1);
             noiseMapByReceiverMaker.getNoiseMapDatabaseParameters().exportRaysMethod = NoiseMapDatabaseParameters.ExportRaysMethods.TO_RAYS_TABLE;
             noiseMapByReceiverMaker.getNoiseMapDatabaseParameters().exportCnossosPathWithAttenuation = true;
             noiseMapByReceiverMaker.getNoiseMapDatabaseParameters().exportAttenuationMatrix = true;
@@ -259,7 +257,6 @@ public class NoiseMapByReceiverMakerTest {
             noiseMapByReceiverMaker.setMaximumPropagationDistance(1000);
             noiseMapByReceiverMaker.setHeightField("HEIGHT");
             noiseMapByReceiverMaker.setInputMode(SceneDatabaseInputSettings.INPUT_MODE.INPUT_MODE_LW_DEN);
-            noiseMapByReceiverMaker.getNoiseMapDatabaseParameters().setCoefficientVersion(1);
             noiseMapByReceiverMaker.getNoiseMapDatabaseParameters().exportRaysMethod = NoiseMapDatabaseParameters.ExportRaysMethods.TO_RAYS_TABLE;
             noiseMapByReceiverMaker.getNoiseMapDatabaseParameters().exportCnossosPathWithAttenuation = true;
             noiseMapByReceiverMaker.getNoiseMapDatabaseParameters().exportAttenuationMatrix = true;
@@ -434,7 +431,6 @@ public class NoiseMapByReceiverMakerTest {
             noiseMapByReceiverMaker.setSoundReflectionOrder(0);
             noiseMapByReceiverMaker.setMaximumPropagationDistance(1000);
             noiseMapByReceiverMaker.setHeightField("HEIGHT");
-            noiseMapByReceiverMaker.getNoiseMapDatabaseParameters().setCoefficientVersion(1);
             noiseMapByReceiverMaker.getNoiseMapDatabaseParameters().exportRaysMethod = NoiseMapDatabaseParameters.ExportRaysMethods.TO_RAYS_TABLE;
             noiseMapByReceiverMaker.getNoiseMapDatabaseParameters().raysTable = "RAYS";
             noiseMapByReceiverMaker.getNoiseMapDatabaseParameters().exportCnossosPathWithAttenuation = true;
@@ -501,7 +497,6 @@ public class NoiseMapByReceiverMakerTest {
             noiseMapByReceiverMaker.setSoundReflectionOrder(0);
             noiseMapByReceiverMaker.setMaximumPropagationDistance(1000);
             noiseMapByReceiverMaker.setHeightField("HEIGHT");
-            noiseMapByReceiverMaker.getNoiseMapDatabaseParameters().setCoefficientVersion(1);
             noiseMapByReceiverMaker.getNoiseMapDatabaseParameters().exportRaysMethod = NoiseMapDatabaseParameters.ExportRaysMethods.TO_RAYS_TABLE;
             noiseMapByReceiverMaker.getNoiseMapDatabaseParameters().raysTable = "RAYS";
             noiseMapByReceiverMaker.getNoiseMapDatabaseParameters().exportCnossosPathWithAttenuation = true;

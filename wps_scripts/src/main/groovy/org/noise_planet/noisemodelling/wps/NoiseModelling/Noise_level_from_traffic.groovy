@@ -514,7 +514,6 @@ def exec(Connection connection, Map input) {
     int coefficientVersion =2
     if (input['coefficientVersion']) {
         coefficientVersion = Integer.valueOf(input['coefficientVersion'] as String)
-        parameters.setCoefficientVersion(coefficientVersion)
         pointNoiseMap.sceneInputSettings.setCoefficientVersion(coefficientVersion)
     }
 

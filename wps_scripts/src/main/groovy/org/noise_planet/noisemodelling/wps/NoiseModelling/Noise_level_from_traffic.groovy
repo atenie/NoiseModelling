@@ -498,10 +498,7 @@ def exec(Connection connection, Map input) {
     if (input['frequencyFieldPrepend']) {
         frequencyFieldPrepend = input['frequencyFieldPrepend'] as String
     }
-    int coefficientVersion =2
-    if (input['coefficientVersion']) {
-        coefficientVersion = Integer.valueOf(input['coefficientVersion'] as String)
-    }
+
 
     // --------------------------------------------
     // Initialize NoiseModelling propagation part
@@ -513,6 +510,13 @@ def exec(Connection connection, Map input) {
 
     parameters.setMergeSources(!confExportSourceId)
     parameters.exportReceiverPosition = true
+
+    int coefficientVersion =2
+    if (input['coefficientVersion']) {
+        coefficientVersion = Integer.valueOf(input['coefficientVersion'] as String)
+        parameters.setCoefficientVersion(coefficientVersion)
+        pointNoiseMap.sceneInputSettings.setCoefficientVersion(coefficientVersion)
+    }
 
     if (input['tableRoadsTraffic']) {
         // Use the right default database caps according to db type
@@ -581,7 +585,6 @@ def exec(Connection connection, Map input) {
     }
 
     pointNoiseMap.setMaximumPropagationDistance(max_src_dist)
-    pointNoiseMap.getNoiseMapDatabaseParameters().setCoefficientVersion(coefficientVersion)
     pointNoiseMap.setMaximumReflectionDistance(max_ref_dist)
     pointNoiseMap.setWallAbsorption(wall_alpha)
     pointNoiseMap.setThreadCount(n_thread)

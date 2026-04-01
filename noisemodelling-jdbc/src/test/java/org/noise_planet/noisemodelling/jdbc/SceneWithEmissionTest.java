@@ -386,7 +386,6 @@ public class SceneWithEmissionTest {
         ProfileBuilder builder = new ProfileBuilder();
         builder.finishFeeding();
 
-        // Flat spectrum: 73.037 dB per octave band (in watts)
         double lwOctDb = 73.037;
         double[] roadLvl = new double[8];
         for (int i = 0; i < 8; i++) {

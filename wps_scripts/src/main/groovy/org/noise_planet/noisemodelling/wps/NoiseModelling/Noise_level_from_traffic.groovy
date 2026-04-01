@@ -489,10 +489,7 @@ def exec(Connection connection, Map input) {
         confExportSourceId = input['confExportSourceId']
     }
 
-    double confMaxError = 0.1
-    if (input['confMaxError']) {
-        confMaxError = Double.valueOf(input['confMaxError'] as String)
-    }
+    double confMaxError = input.getOrDefault("confMaxError", 0.1) as Double
 
     String frequencyFieldPrepend = "HZ"
     if (input['frequencyFieldPrepend']) {

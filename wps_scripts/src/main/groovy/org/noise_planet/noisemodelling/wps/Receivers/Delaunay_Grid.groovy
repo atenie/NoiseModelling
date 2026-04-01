@@ -38,6 +38,7 @@ import org.h2gis.utilities.wrapper.ConnectionWrapper
 import org.locationtech.jts.geom.Envelope
 import org.locationtech.jts.geom.Geometry
 import org.noise_planet.noisemodelling.jdbc.DelaunayReceiversMaker
+import org.noise_planet.noisemodelling.jdbc.utils.DataBaseUtilities
 import org.noise_planet.noisemodelling.pathfinder.delaunay.LayerDelaunayError
 import org.noise_planet.noisemodelling.pathfinder.utils.profiler.RootProgressVisitor
 import org.slf4j.Logger
@@ -299,6 +300,13 @@ def exec(Connection connection, Map input) {
     int srid = GeometryTableUtilities.getSRID(connection, TableLocation.parse(building_table_name))
     if (srid == 0) {
         srid = GeometryTableUtilities.getSRID(connection, TableLocation.parse(sources_table_name))
+    }
+
+    if (!DataBaseUtilities.isSridMetric(connection, srid)) {
+        throw new IllegalArgumentException("Error : Please use a metric projection for your tables. (SRID " + srid + " is not metric)")
+    }
+    if (srid == 0) {
+        throw new IllegalArgumentException("Error : The table does not have an associated SRID.")
     }
 
     Geometry fence = null

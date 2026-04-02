@@ -449,30 +449,15 @@ def exec(Connection connection, Map input) {
         recordProfile = input['confRecordProfile']
     }
 
-    int reflexion_order = 0
-    if (input['confReflOrder']) {
-        reflexion_order = Integer.valueOf(input['confReflOrder'] as String)
-    }
+    int reflexion_order = input.getOrDefault("confReflOrder",1) as Integer
 
-    double max_src_dist = 150
-    if (input['confMaxSrcDist']) {
-        max_src_dist = Double.valueOf(input['confMaxSrcDist'] as String)
-    }
+    double max_src_dist = input.getOrDefault("confMaxSrcDist", 150.0) as Double
 
-    double max_ref_dist = 50
-    if (input['confMaxReflDist']) {
-        max_ref_dist = Double.valueOf(input['confMaxReflDist'] as String)
-    }
+    double max_ref_dist = input.getOrDefault("confMaxReflDist",50.0) as Double
 
-    double wall_alpha = 0.1
-    if (input['paramWallAlpha']) {
-        wall_alpha = Double.valueOf(input['paramWallAlpha'] as String)
-    }
+    double wall_alpha = input.getOrDefault("paramWallAlpha",0.1) as Double
 
-    int n_thread = 0
-    if (input['confThreadNumber']) {
-        n_thread = Integer.valueOf(input['confThreadNumber'] as String)
-    }
+    int n_thread = input.getOrDefault("confThreadNumber",0) as Integer
 
     boolean compute_vertical_diffraction = false
     if (input['confDiffVertical']) {
@@ -489,10 +474,7 @@ def exec(Connection connection, Map input) {
         confExportSourceId = input['confExportSourceId']
     }
 
-    double confMaxError = 0.1
-    if (input['confMaxError']) {
-        confMaxError = Double.valueOf(input['confMaxError'] as String)
-    }
+    double confMaxError = input.getOrDefault("confMaxError",0.1) as Double
 
     String frequencyFieldPrepend = "HZ"
     if (input['frequencyFieldPrepend']) {
@@ -511,9 +493,8 @@ def exec(Connection connection, Map input) {
     parameters.setMergeSources(!confExportSourceId)
     parameters.exportReceiverPosition = true
 
-    int coefficientVersion =2
-    if (input['coefficientVersion']) {
-        coefficientVersion = Integer.valueOf(input['coefficientVersion'] as String)
+    int coefficientVersion = input.getOrDefault("coefficientVersion",2) as Integer
+    if (coefficientVersion != 2) {
         pointNoiseMap.sceneInputSettings.setCoefficientVersion(coefficientVersion)
     }
 
@@ -562,12 +543,12 @@ def exec(Connection connection, Map input) {
         }
         environmentalData.setWindRose(favOccurrences)
     }
-    if (input.containsKey('confHumidity')) {
-        environmentalData.setHumidity(input['confHumidity'] as Double)
-    }
-    if (input.containsKey('confTemperature')) {
-        environmentalData.setTemperature(input['confTemperature'] as Double)
-    }
+    double confHumidity = input.getOrDefault("confHumidity",70.0) as Double
+    environmentalData.setHumidity(confHumidity)
+
+    double confTemperature = input.getOrDefault("confTemperature",15.0) as Double
+    environmentalData.setTemperature(confTemperature)
+
     if(input.containsKey("tablePeriodAtmosphericSettings")) {
         pointNoiseMap.getSceneInputSettings().setPeriodAtmosphericSettingsTableName(input.get("tablePeriodAtmosphericSettings") as String)
     }

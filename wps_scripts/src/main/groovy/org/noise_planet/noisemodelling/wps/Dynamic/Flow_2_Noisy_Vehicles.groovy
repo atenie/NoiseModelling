@@ -139,20 +139,11 @@ def exec(Connection connection, input) {
     // Get every inputs
     // -------------------
 
-    int duration = 60
-    if (input['duration']) {
-        duration = Integer.valueOf(input['duration'] as String)
-    }
+    int duration = input.getOrDefault("duration", 60) as Integer
 
-    int timestep = 1
-    if (input['timestep']) {
-        timestep = Integer.valueOf(input['timestep'] as String)
-    }
+    int timestep = input.getOrDefault("timestep", 1) as Integer
 
-    int gridStep = 10
-    if (input['gridStep']) {
-        gridStep = Integer.valueOf(input['gridStep'] as String)
-    }
+    int gridStep = input.getOrDefault("gridStep", 10) as Integer
 
     int nIterations = (int) Math.round(duration/timestep);
 

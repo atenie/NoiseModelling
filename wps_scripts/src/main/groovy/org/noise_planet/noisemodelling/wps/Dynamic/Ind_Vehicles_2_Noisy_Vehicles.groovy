@@ -134,7 +134,7 @@ def exec(Connection connection, Map input) {
 
     String tableFormat = input['tableFormat']
 
-    double distance2snap = input['distance2snap']
+    double distance2snap = input['distance2snap'] as Double
 
     boolean removeGeomsNoEmission = true
     if (input['keepNoEmissionGeoms']) {

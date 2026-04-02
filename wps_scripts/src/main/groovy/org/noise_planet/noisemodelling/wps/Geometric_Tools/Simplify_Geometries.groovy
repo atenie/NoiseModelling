@@ -80,7 +80,7 @@ def run(input) {
     }
 }
 
-def exec(Connection connection, input) {
+def exec(Connection connection, Map input) {
 
     // Need to change the ConnectionWrapper to WpsConnectionWrapper to work under postGIS database   
     connection = new ConnectionWrapper(connection)
@@ -98,10 +98,7 @@ def exec(Connection connection, input) {
     logger.info('Start : Template')
     logger.info("inputs {}", input) // log inputs of the run
 
-    Double distanceTolerance = 1
-    if (input['distanceTolerance']) {
-        distanceTolerance = input['distanceTolerance'] as Double
-    }
+    Double distanceTolerance = input.getOrDefault("distanceTolerance",1.0) as Double
 
     String table_name = input['tableName'] as String
     table_name = table_name.toUpperCase()

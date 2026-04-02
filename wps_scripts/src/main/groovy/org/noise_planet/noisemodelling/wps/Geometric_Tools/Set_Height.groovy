@@ -107,7 +107,7 @@ def exec(Connection connection, input) {
     table_name = table_name.toUpperCase()
     String geometryColumnName = GeometryTableUtilities.getGeometryColumnNames(connection, table_name).get(0)
 
-    if(input['height']){
+    if(input['height']!=null){
         Double h = input['height'] as Double
         GeometryMetaData metaData = GeometryTableUtilities.getMetaData(connection, TableLocation.parse(table_name, DBUtils.getDBType(connection)), "THE_GEOM");
         metaData.setHasZ(true)
@@ -120,7 +120,7 @@ def exec(Connection connection, input) {
         logger.info('End : Set new height')
 
         return resultString
-    } else if(input['heightColumn']){
+    } else if(input['heightColumn']!=""){
         def st = connection.createStatement()
         String height_column = input['heightColumn'] as String
         height_column = st.enquoteIdentifier(height_column, false)

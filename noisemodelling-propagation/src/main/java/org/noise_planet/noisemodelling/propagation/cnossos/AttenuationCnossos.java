@@ -409,8 +409,31 @@ public class AttenuationCnossos {
         double aGroundOR = proPathParameters.isFavourable() ? aGroundF(proPathParameters, last, data, frequencyIndex, true) : aGroundH(proPathParameters, last, data, frequencyIndex, true);
 
         //If the source or the receiver are under the mean plane, change the computation of deltaDffSR and deltaGround
-        double deltaGroundSO = -20*log10(1+(pow(10, -aGroundSO/20)-1)*pow(10, -(deltaDiffSPrimeR-deltaDiffSR)/20));
-        double deltaGroundOR = -20*log10(1+(pow(10, -aGroundOR/20)-1)*pow(10, -(deltaDiffSRPrime-deltaDiffSR)/20));
+        //
+        double deltaGroundSO;
+        double deltaGroundOR;
+        if(first.s.y >= first.sMeanPlane.y) {
+            // If the source is above the mean plane
+            deltaGroundSO = -20 * log10(1 + (pow(10, -aGroundSO / 20) - 1) * pow(10,
+                    -(deltaDiffSPrimeR - deltaDiffSR) / 20));
+        } else {
+            // Source is below the mean plane
+            //equation 2.5.31 et 2.5.33
+            //https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:02002L0049-20210729
+            deltaGroundSO = aGroundSO;
+            deltaDiffSR = deltaDiffSPrimeR;
+        }
+        if(last.r.y >= last.rMeanPlane.y) {
+            // If the receiver is above the mean plane
+            deltaGroundOR = -20 * log10(1 + (pow(10, -aGroundOR / 20) - 1) * pow(10,
+                    -(deltaDiffSRPrime - deltaDiffSR) / 20));
+        } else {
+            // Receiver is below the mean plane
+            // equation 2.5.31 et 2.5.33
+            // https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:02002L0049-20210729
+            deltaGroundOR = aGroundOR;
+            deltaDiffSR = deltaDiffSRPrime;
+        }
 
         //Double check NaN values
         if(Double.isNaN(deltaGroundSO)){
@@ -419,7 +442,7 @@ public class AttenuationCnossos {
         }
         if(Double.isNaN(deltaGroundOR)){
             deltaGroundOR = aGroundOR;
-            deltaDiffSR = deltaDiffSPrimeR;
+            deltaDiffSR = deltaDiffSRPrime;
         }
 
         double aDiff = min(25, max(0, deltaDiffSR)) + deltaGroundSO + deltaGroundOR;

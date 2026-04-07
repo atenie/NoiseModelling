@@ -6419,6 +6419,35 @@ public class AttenuationComputeOutputCnossosTest {
         assertTrue(Arrays.stream(cnossosPath.aGlobalRaw).allMatch(d -> d < 0));
     }
 
+
+    /**
+     * Test regression issue, reflection in favourable over DEM
+     */
+    @Test
+    public void TCFavourableReflection2() throws IOException {
+        AttenuationComputeOutput propDataOut = computeCnossosPath(AttenuationComputeOutputCnossosTest.class.getResource("RegressionTestReflection2.json"));
+        assertNotNull(propDataOut);
+        assertEquals(2, propDataOut.getPropagationPaths().size());
+        CnossosPath cnossosPath = propDataOut.getPropagationPaths().get(0);
+        assertFalse(cnossosPath.isFavourable());
+        assertEquals(CutProfile.PROFILE_TYPE.REFLECTION, cnossosPath.getCutProfile().getProfileType());
+        // check if cnossosPath.aDif array is positive
+        // Why 18dB gain, because up to 9dB gain for the reflection in favourable condition (eq. 2.5.20) on the ground for SO and OR
+        assertTrue(Arrays.stream(cnossosPath.aDif).allMatch(d -> d >= -18));
+        // Check attenuation is cnossosPath.aGlobal < 0 dB
+        assertTrue(Arrays.stream(cnossosPath.aGlobal).allMatch(d -> d < 0));
+        assertTrue(Arrays.stream(cnossosPath.aGlobalRaw).allMatch(d -> d < 0));
+        cnossosPath = propDataOut.getPropagationPaths().get(1);
+        assertTrue(cnossosPath.isFavourable());
+        assertEquals(CutProfile.PROFILE_TYPE.REFLECTION, cnossosPath.getCutProfile().getProfileType());
+        // check if cnossosPath.aDif array is positive
+        // Why 18dB gain, because up to 9dB gain for the reflection in favourable condition (eq. 2.5.20) on the ground for SO and OR
+        assertTrue(Arrays.stream(cnossosPath.aDif).allMatch(d -> d >= -18));
+        // Check attenuation is cnossosPath.aGlobal < 0 dB
+        assertTrue(Arrays.stream(cnossosPath.aGlobal).allMatch(d -> d < 0));
+        assertTrue(Arrays.stream(cnossosPath.aGlobalRaw).allMatch(d -> d < 0));
+    }
+
     /**
      * Assertions for a list of {@link CnossosPath}.
      * @param expectedPts    Array of arrays of array of expected coordinates (xyz) of points of paths. To each path

@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.net.URL;
 import java.util.*;
 import java.util.stream.IntStream;
 
@@ -95,15 +96,20 @@ public class AttenuationComputeOutputCnossosTest {
 
     }
 
-    private static CutProfile loadCutProfile(String utName) throws IOException {
-        String testCaseFileName = utName + ".json";
-        try(InputStream inputStream = PathFinder.class.getResourceAsStream("test_cases/"+testCaseFileName)) {
-            ObjectMapper mapper = new ObjectMapper();
-            return mapper.readValue(inputStream, CutProfile.class);
-        }
+    private static CutProfile loadCutProfile(InputStream inputStream) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(inputStream, CutProfile.class);
     }
 
-    private static AttenuationComputeOutput computeCnossosPath(String... utNames)
+    private static AttenuationComputeOutput computeCnossosPath(String... utNames) throws IOException {
+        URL[] urls = Arrays.stream(utNames)
+                .map(utName -> PathFinder.class.getResource("test_cases/" + utName + ".json"))
+                .toArray(URL[]::new); // <--- This is the key change
+
+        return computeCnossosPath(urls);
+    }
+
+    private static AttenuationComputeOutput computeCnossosPath(URL... cutProfileUrls)
             throws IOException {
         //Create profile builder
         ProfileBuilder profileBuilder = new ProfileBuilder()
@@ -124,8 +130,11 @@ public class AttenuationComputeOutputCnossosTest {
 
         CutPlaneVisitor cutPlaneVisitor = propDataOut.subProcess(new EmptyProgressVisitor());
         PathFinder.ReceiverPointInfo lastReceiver = new PathFinder.ReceiverPointInfo(-1,-1,new Coordinate());
-        for (String utName : utNames) {
-            CutProfile cutProfile = loadCutProfile(utName);
+        for (URL cutProfileUrl : cutProfileUrls) {
+            CutProfile cutProfile;
+            try(InputStream inputStream = cutProfileUrl.openStream()) {
+                cutProfile = loadCutProfile(inputStream);
+            }
             cutPlaneVisitor.onNewCutPlane(cutProfile);
             if(lastReceiver.receiverPk != -1 && cutProfile.getReceiver().receiverPk != lastReceiver.receiverPk) {
                 // merge attenuation per receiver
@@ -6379,6 +6388,64 @@ public class AttenuationComputeOutputCnossosTest {
             }
             assertEquals(idReceiver, maxPowerReceiverIndex);
         }
+    }
+
+
+    /**
+     * Test regression issue, reflection in favourable over DEM
+     */
+    @Test
+    public void TCFavourableReflection() throws IOException {
+        AttenuationComputeOutput propDataOut = computeCnossosPath(AttenuationComputeOutputCnossosTest.class.getResource("RegressionTestReflection1.json"));
+        assertNotNull(propDataOut);
+        assertEquals(2, propDataOut.getPropagationPaths().size());
+        CnossosPath cnossosPath = propDataOut.getPropagationPaths().get(0);
+        assertFalse(cnossosPath.isFavourable());
+        assertEquals(CutProfile.PROFILE_TYPE.REFLECTION, cnossosPath.getCutProfile().getProfileType());
+        // check if cnossosPath.aDif array is positive
+        // Why 18dB gain, because up to 9dB gain for the reflection in favourable condition (eq. 2.5.20) on the ground for SO and OR
+        assertTrue(Arrays.stream(cnossosPath.aDif).allMatch(d -> d >= -18));
+        // Check attenuation is cnossosPath.aGlobal < 0 dB
+        assertTrue(Arrays.stream(cnossosPath.aGlobal).allMatch(d -> d < 0));
+        assertTrue(Arrays.stream(cnossosPath.aGlobalRaw).allMatch(d -> d < 0));
+        cnossosPath = propDataOut.getPropagationPaths().get(1);
+        assertTrue(cnossosPath.isFavourable());
+        assertEquals(CutProfile.PROFILE_TYPE.REFLECTION, cnossosPath.getCutProfile().getProfileType());
+        // check if cnossosPath.aDif array is positive
+        // Why 18dB gain, because up to 9dB gain for the reflection in favourable condition (eq. 2.5.20) on the ground for SO and OR
+        assertTrue(Arrays.stream(cnossosPath.aDif).allMatch(d -> d >= -18));
+        // Check attenuation is cnossosPath.aGlobal < 0 dB
+        assertTrue(Arrays.stream(cnossosPath.aGlobal).allMatch(d -> d < 0));
+        assertTrue(Arrays.stream(cnossosPath.aGlobalRaw).allMatch(d -> d < 0));
+    }
+
+
+    /**
+     * Test regression issue, reflection in favourable over DEM
+     */
+    @Test
+    public void TCFavourableReflection2() throws IOException {
+        AttenuationComputeOutput propDataOut = computeCnossosPath(AttenuationComputeOutputCnossosTest.class.getResource("RegressionTestReflection2.json"));
+        assertNotNull(propDataOut);
+        assertEquals(2, propDataOut.getPropagationPaths().size());
+        CnossosPath cnossosPath = propDataOut.getPropagationPaths().get(0);
+        assertFalse(cnossosPath.isFavourable());
+        assertEquals(CutProfile.PROFILE_TYPE.REFLECTION, cnossosPath.getCutProfile().getProfileType());
+        // check if cnossosPath.aDif array is positive
+        // Why 18dB gain, because up to 9dB gain for the reflection in favourable condition (eq. 2.5.20) on the ground for SO and OR
+        assertTrue(Arrays.stream(cnossosPath.aDif).allMatch(d -> d >= -18));
+        // Check attenuation is cnossosPath.aGlobal < 0 dB
+        assertTrue(Arrays.stream(cnossosPath.aGlobal).allMatch(d -> d < 0));
+        assertTrue(Arrays.stream(cnossosPath.aGlobalRaw).allMatch(d -> d < 0));
+        cnossosPath = propDataOut.getPropagationPaths().get(1);
+        assertTrue(cnossosPath.isFavourable());
+        assertEquals(CutProfile.PROFILE_TYPE.REFLECTION, cnossosPath.getCutProfile().getProfileType());
+        // check if cnossosPath.aDif array is positive
+        // Why 18dB gain, because up to 9dB gain for the reflection in favourable condition (eq. 2.5.20) on the ground for SO and OR
+        assertTrue(Arrays.stream(cnossosPath.aDif).allMatch(d -> d >= -18));
+        // Check attenuation is cnossosPath.aGlobal < 0 dB
+        assertTrue(Arrays.stream(cnossosPath.aGlobal).allMatch(d -> d < 0));
+        assertTrue(Arrays.stream(cnossosPath.aGlobalRaw).allMatch(d -> d < 0));
     }
 
     /**

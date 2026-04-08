@@ -491,7 +491,13 @@ public class CnossosPathBuilder {
                 cnossosPath.delta = toCurve(seg1.d, srPath.d) + toCurve(cnossosPath.e, srPath.d) + toCurve(seg2.d, srPath.d) - toCurve(srPath.d, srPath.d);
             } else {
                 Coordinate pA = sr.pointAlong((c0.x - srcPrime.x) / (rcvPrime.x - srcPrime.x));
-                cnossosPath.delta = 2 * toCurve(srcPrime.distance(pA), srPath.dPrime) + 2 * toCurve(pA.distance(rcvPrime), srPath.dPrime) - toCurve(seg1.dPrime, srPath.dPrime) - toCurve(seg2.dPrime, srPath.dPrime) - toCurve(srPath.dPrime, srPath.dPrime);
+                cnossosPath.delta =
+                        2 * toCurve(srcPrime.distance(pA), srPath.dPrime) +
+                        2 * toCurve(pA.distance(rcvPrime), srPath.dPrime) -
+                        toCurve(seg1.dPrime, srPath.dPrime) -
+                        toCurve(cnossosPath.e, srPath.dPrime) -
+                        toCurve(seg2.dPrime, srPath.dPrime) -
+                        toCurve(srPath.dPrime, srPath.dPrime);
             }
         }
 

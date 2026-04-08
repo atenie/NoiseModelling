@@ -1226,7 +1226,7 @@ public class AttenuationComputeOutputCnossosTest {
         assertDoubleArrayEquals("LF - left lateral", expectedLF, actualLF, ERROR_EPSILON_VERY_LOW);
 
         double[] L = addArray(propDataOut.getVerticesSoundLevel().get(0).levels, new double[]{93-26.2,93-16.1,93-8.6,93-3.2,93,93+1.2,93+1.0,93-1.1});
-        assertArrayEquals(  new double[]{8.17,16.86,22.51,25.46,24.87,23.44,15.93,-5.43},L, ERROR_EPSILON_VERY_LOW);
+        assertArrayEquals(  new double[]{8.17,16.86,22.51,25.46,24.87,23.44,15.93,-5.43},L, ERROR_EPSILON_LOWEST);
     }
 
 //    public static void addGroundAttenuationTC5(ProfileBuilder profileBuilder) {
@@ -1537,7 +1537,7 @@ public class AttenuationComputeOutputCnossosTest {
 
         double[] L = addArray(propDataOut.getVerticesSoundLevel().get(0).levels, new double[]{93-26.2,93-16.1,93-8.6,93-3.2,93,93+1.2,93+1.0,93-1.1});
 
-        assertArrayEquals(  new double[]{6.41,14.50,19.52,22.09,22.16,19.28,11.62,-9.31},L, ERROR_EPSILON_VERY_LOW);
+        assertArrayEquals(  new double[]{6.41,14.50,19.52,22.09,22.16,19.28,11.62,-9.31},L, ERROR_EPSILON_LOWEST);
     }
 
     /**
@@ -2050,7 +2050,7 @@ public class AttenuationComputeOutputCnossosTest {
         assertDoubleArrayEquals("AGroundF", expectedAGroundF, actualAGroundF, ERROR_EPSILON_VERY_LOW);
 
         double[] L = addArray(propDataOut.getVerticesSoundLevel().get(0).levels, sumArray(SOUND_POWER_LEVELS, A_WEIGHTING));
-        assertArrayEquals(  new double[]{21.28,28.39,32.47,34.51,34.54,33.37,32.14,27.73},L, ERROR_EPSILON_VERY_LOW);
+        assertArrayEquals(  new double[]{21.28,28.39,32.47,34.51,34.54,33.37,32.14,27.73},L, ERROR_EPSILON_LOWEST);
     }
 
     /**
@@ -2574,7 +2574,7 @@ public class AttenuationComputeOutputCnossosTest {
         assertDoubleArrayEquals("LH - right lateral", expectedLH, actualLH, ERROR_EPSILON_VERY_LOW);
 
         double[] L = addArray(propDataOut.getVerticesSoundLevel().get(0).levels, new double[]{93-26.2,93-16.1,93-8.6,93-3.2,93,93+1.2,93+1.0,93-1.1});
-        assertArrayEquals(  new double[]{5.14,12.29,16.39,18.47,18.31,15.97,9.72,-9.92},L, ERROR_EPSILON_VERY_LOW);
+        assertArrayEquals(  new double[]{5.14,12.29,16.39,18.47,18.31,15.97,9.72,-9.92},L, ERROR_EPSILON_LOWEST);
     }
 
     /**
@@ -3720,7 +3720,7 @@ public class AttenuationComputeOutputCnossosTest {
         assertDoubleArrayEquals("L - reflexion", expectedL, actualL, ERROR_EPSILON_VERY_LOW);
         assertDoubleArrayEquals("LA - reflexion", expectedLA, actualLA, ERROR_EPSILON_VERY_LOW);
 
-        assertArrayEquals(  new double[]{11.69,21.77,28.93,32.71,36.83,36.83,32.12,13.66},L, ERROR_EPSILON_VERY_LOW);
+        assertArrayEquals(  new double[]{11.69,21.77,28.93,32.71,36.83,36.83,32.12,13.66},L, ERROR_EPSILON_LOWEST);
     }
 
     /**
@@ -4163,7 +4163,7 @@ public class AttenuationComputeOutputCnossosTest {
 
         double[] L = addArray(propDataOut.getVerticesSoundLevel().get(0).levels, new double[]{93-26.2,93-16.1,93-8.6,93-3.2,93,93+1.2,93+1.0,93-1.1});
 
-        assertArrayEquals(  new double[]{11.21,21.25,28.63,33.86,36.73,36.79,32.17,14},L, ERROR_EPSILON_VERY_LOW);
+        assertArrayEquals(  new double[]{11.21,21.25,28.63,33.86,36.73,36.79,32.17,14},L, ERROR_EPSILON_LOWEST);
     }
 
     /**
@@ -4728,7 +4728,7 @@ public class AttenuationComputeOutputCnossosTest {
         assertDoubleArrayEquals("LF - lateral left", expectedLF, actualLF, ERROR_EPSILON_VERY_LOW);
 
         double[] L = addArray(propDataOut.getVerticesSoundLevel().get(0).levels, new double[]{93-26.2,93-16.1,93-8.6,93-3.2,93,93+1.2,93+1.0,93-1.1});
-        assertArrayEquals(  new double[]{-2.96,3.56,6.73,11.17,13.85,13.86,9.48,-7.64},L, ERROR_EPSILON_VERY_LOW);
+        assertArrayEquals(  new double[]{-2.96,3.56,6.73,11.17,13.85,13.86,9.48,-7.64},L, ERROR_EPSILON_LOWEST);
 
     }
 
@@ -5113,7 +5113,7 @@ public class AttenuationComputeOutputCnossosTest {
         assertDoubleArrayEquals("LA reflection plane", expectedLA, actualLA, ERROR_EPSILON_VERY_LOW);
 
         double[] L = addArray(propDataOut.getVerticesSoundLevel().get(0).levels, new double[]{93 - 26.2, 93 - 16.1, 93 - 8.6, 93 - 3.2, 93, 93 + 1.2, 93 + 1.0, 93 - 1.1});
-        assertArrayEquals(new double[]{14.31, 21.69, 27.76, 31.52, 31.49, 29.18, 25.39, 16.58}, L, ERROR_EPSILON_VERY_LOW);
+        assertArrayEquals(new double[]{14.31, 21.69, 27.76, 31.52, 31.49, 29.18, 25.39, 16.58}, L, ERROR_EPSILON_LOWEST);
     }
 
     /**
@@ -6388,6 +6388,296 @@ public class AttenuationComputeOutputCnossosTest {
             }
             assertEquals(idReceiver, maxPowerReceiverIndex);
         }
+    }
+
+
+    /**
+     * Regression test for multi-diffraction favorable path: missing e term in deltaPrime calculation
+     * with positive orientation.
+     * Two buildings create multi-diffraction. In favorable conditions, the deltaPrime
+     * formula (Eq. 2.5.21) must include the e term (distance between diffraction edges).
+     * Without the fix, deltaPrime would be significantly lower (missing toCurve(e, dPrime) contribution).
+     */
+    @Test
+    public void regressionMultiDifFavourable_MissingETerm() throws IOException {
+        GeometryFactory f = new GeometryFactory();
+        ProfileBuilder profileBuilder = new ProfileBuilder();
+
+        // Two buildings creating multi-diffraction at 200m distance
+        // Building 1: x=[75,80], height 10m — Building 2: x=[120,125], height 10m
+        // e ≈ distance between building tops ≈ 40m (significant contribution to deltaPrime)
+        profileBuilder
+                .addBuilding(new Coordinate[]{
+                        new Coordinate(75, -50, 0), new Coordinate(80, -50, 0),
+                        new Coordinate(80, 50, 0), new Coordinate(75, 50, 0)
+                }, 10.0)
+                .addBuilding(new Coordinate[]{
+                        new Coordinate(120, -50, 0), new Coordinate(125, -50, 0),
+                        new Coordinate(125, 50, 0), new Coordinate(120, 50, 0)
+                }, 10.0)
+                .finishFeeding();
+
+        SceneWithAttenuation scene = new SceneWithAttenuation(profileBuilder);
+        scene.addSource(f.createPoint(new Coordinate(0, 0, 1)));
+        scene.addReceiver(new Coordinate(200, 0, 4));
+        scene.defaultGroundAttenuation = 0.5;
+        scene.reflexionOrder = 0;
+        scene.maxSrcDist = 300;
+        scene.setComputeHorizontalDiffraction(true);
+        scene.setComputeVerticalDiffraction(true);
+
+        AttenuationParameters attData = new AttenuationParameters();
+        attData.setHumidity(HUMIDITY);
+        attData.setTemperature(TEMPERATURE);
+        scene.defaultCnossosParameters = attData;
+
+        AttenuationComputeOutput propDataOut = new AttenuationComputeOutput(true, true, scene);
+        PathFinder pathFinder = new PathFinder(scene);
+        pathFinder.setThreadCount(1);
+        pathFinder.run(propDataOut);
+
+        // Find the favorable direct path with multi-diffraction (3+ segments = 2+ diffraction edges)
+        CnossosPath favDirectPath = null;
+        CnossosPath homDirectPath = null;
+        for (CnossosPath path : propDataOut.getPropagationPaths()) {
+            if (path.getCutProfile().getProfileType() == CutProfile.PROFILE_TYPE.DIRECT
+                    && path.getSegmentList().size() >= 3) {
+                if (path.isFavourable()) {
+                    favDirectPath = path;
+                } else {
+                    homDirectPath = path;
+                }
+            }
+        }
+        assertNotNull(favDirectPath, "Should find a favorable direct path with multi-diffraction");
+        assertNotNull(homDirectPath, "Should find a homogeneous direct path with multi-diffraction");
+
+        // === ASSERTIONS ===
+
+        // e > 0 confirms multi-diffraction (distance between diffraction edges)
+        assertTrue(favDirectPath.e > 0, "Multi-diffraction path must have e > 0");
+
+        // delta and deltaPrime should be positive for standard geometry (barriers above S-R line)
+        assertTrue(favDirectPath.delta > 0, "Favorable delta should be positive for barriers above S-R line");
+        assertTrue(favDirectPath.deltaPrime > 0, "Favorable deltaPrime should be positive");
+
+        // KEY REGRESSION CHECK:
+        // With correct fix: deltaPrime_F includes the e term via toCurve(e, dPrime)
+        // Without fix: deltaPrime_F is missing ~toCurve(e, dPrime) contribution
+        // For e ≈ 40m and dPrime ≈ 200m, the missing term is approximately 40m
+        // The homogeneous deltaPrime_H = seg1.dPrime + e + seg2.dPrime - srPath.dPrime
+        // The favorable deltaPrime_F should be close to deltaPrime_H (both include e)
+        // Without fix: deltaPrime_F ≈ deltaPrime_H - e (dramatically wrong)
+        double deltaPrimeDiff = Math.abs(favDirectPath.deltaPrime - homDirectPath.deltaPrime);
+        assertTrue(deltaPrimeDiff < homDirectPath.e,
+                String.format("Favorable deltaPrime (%.2f) should be close to homogeneous deltaPrime (%.2f), " +
+                                "difference (%.2f) should be less than e (%.2f). " +
+                                "A large difference indicates the e term is missing.",
+                        favDirectPath.deltaPrime, homDirectPath.deltaPrime, deltaPrimeDiff, homDirectPath.e));
+
+        // aDif values should be physically bounded (diffraction cannot add more than 25dB)
+        assertTrue(Arrays.stream(favDirectPath.aDif).allMatch(d -> d >= -25),
+                "Diffraction attenuation should be >= -25 dB");
+
+        // Global attenuation must be negative (sound always loses energy)
+        assertTrue(Arrays.stream(favDirectPath.aGlobal).allMatch(d -> d < 0),
+                "Global attenuation should be negative");
+        assertTrue(Arrays.stream(favDirectPath.aGlobalRaw).allMatch(d -> d < 0),
+                "Raw global attenuation should be negative");
+
+        // Precise numeric assertions
+        assertEquals(50.0, favDirectPath.e, ERROR_EPSILON_LOWEST);
+        assertEquals(0.6407, favDirectPath.delta, ERROR_EPSILON_VERY_LOW);
+        assertEquals(1.9613, favDirectPath.deltaPrime, ERROR_EPSILON_VERY_LOW);
+        assertEquals(0.8651, favDirectPath.deltaSPrimeR, ERROR_EPSILON_VERY_LOW);
+        assertEquals(1.6569, favDirectPath.deltaSRPrime, ERROR_EPSILON_VERY_LOW);
+    }
+
+
+    /**
+     * JSON-based standalone regression test for multi-diffraction favorable (missing e term).
+     * Loads the CutProfile previously generated by regressionMultiDifFavourable_MissingETerm.
+     */
+    @Test
+    public void regressionMultiDifFavourable_Standalone() throws IOException {
+        AttenuationComputeOutput propDataOut = computeCnossosPath(
+                AttenuationComputeOutputCnossosTest.class.getResource("RegressionTestMultiDifFav.json"));
+        assertNotNull(propDataOut);
+        assertEquals(2, propDataOut.getPropagationPaths().size());
+
+        CnossosPath homPath = propDataOut.getPropagationPaths().get(0);
+        assertFalse(homPath.isFavourable());
+        CnossosPath favPath = propDataOut.getPropagationPaths().get(1);
+        assertTrue(favPath.isFavourable());
+        assertEquals(CutProfile.PROFILE_TYPE.DIRECT, favPath.getCutProfile().getProfileType());
+
+        // Multi-diffraction: e > 0
+        assertTrue(favPath.e > 0, "Multi-diffraction path must have e > 0");
+        // deltaPrime should be positive (barriers above S-R line)
+        assertTrue(favPath.deltaPrime > 0, "Favorable deltaPrime should be positive");
+        // Favorable deltaPrime should be close to homogeneous (both include e contribution)
+        double deltaPrimeDiff = Math.abs(favPath.deltaPrime - homPath.deltaPrime);
+        assertTrue(deltaPrimeDiff < homPath.e,
+                "deltaPrime difference between F and H should be less than e");
+        // aDif physically bounded
+        assertTrue(Arrays.stream(favPath.aDif).allMatch(d -> d >= -25));
+        // Global attenuation negative
+        assertTrue(Arrays.stream(favPath.aGlobal).allMatch(d -> d < 0));
+        assertTrue(Arrays.stream(favPath.aGlobalRaw).allMatch(d -> d < 0));
+
+        // Precise numeric assertions (same geometry as scene-based test)
+        assertEquals(50.0, favPath.e, ERROR_EPSILON_LOWEST);
+        assertEquals(0.6407, favPath.delta, ERROR_EPSILON_VERY_LOW);
+        assertEquals(1.9613, favPath.deltaPrime, ERROR_EPSILON_VERY_LOW);
+        assertEquals(0.8651, favPath.deltaSPrimeR, ERROR_EPSILON_VERY_LOW);
+        assertEquals(1.6569, favPath.deltaSRPrime, ERROR_EPSILON_VERY_LOW);
+    }
+
+
+    /**
+     * Regression test for single-diffraction favorable path deltaPrime calculation.
+     * A thin wall creates a single diffraction point. The favorable path delta and deltaPrime
+     * are computed using toCurve formulas. This test verifies that:
+     * - delta and deltaPrime are physically consistent between H and F paths
+     * - the favorable computations produce bounded, reasonable values
+     * - aDif and aGlobal values are physically valid
+     * The fix corrected the negative deltaPrime orientation branch (using rcvPrime
+     * instead of srcPrime and dPrime instead of d), which is only triggered in rare terrain
+     * configurations. This test validates the overall single-diffraction favorable code path.
+     */
+    @Test
+    public void regressionSingleDifFavourable_DeltaPrime() throws IOException {
+        GeometryFactory f = new GeometryFactory();
+        ProfileBuilder profileBuilder = new ProfileBuilder();
+
+        // Thin wall at x=20, height=6m creates single diffraction.
+        // Source at (0,0,1), Receiver at (50,0,4) → wall above S-R line.
+        List<Double> alphas = Arrays.asList(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        profileBuilder
+                .addWall(new Coordinate[]{
+                        new Coordinate(20, -100, 0),
+                        new Coordinate(20, 100, 0)
+                }, 6.0, alphas, 1)
+                .finishFeeding();
+
+        SceneWithAttenuation scene = new SceneWithAttenuation(profileBuilder);
+        scene.addSource(f.createPoint(new Coordinate(0, 0, 1)));
+        scene.addReceiver(new Coordinate(50, 0, 4));
+        scene.defaultGroundAttenuation = 0.5;
+        scene.reflexionOrder = 0;
+        scene.maxSrcDist = 100;
+        scene.setComputeHorizontalDiffraction(true);
+        scene.setComputeVerticalDiffraction(true);
+
+        AttenuationParameters attData = new AttenuationParameters();
+        attData.setHumidity(HUMIDITY);
+        attData.setTemperature(TEMPERATURE);
+        scene.defaultCnossosParameters = attData;
+
+        AttenuationComputeOutput propDataOut = new AttenuationComputeOutput(true, true, scene);
+        PathFinder pathFinder = new PathFinder(scene);
+        pathFinder.setThreadCount(1);
+        pathFinder.run(propDataOut);
+
+        // Find favorable and homogeneous direct paths with diffraction
+        CnossosPath favDirectPath = null;
+        CnossosPath homDirectPath = null;
+        for (CnossosPath path : propDataOut.getPropagationPaths()) {
+            if (path.getCutProfile().getProfileType() == CutProfile.PROFILE_TYPE.DIRECT
+                    && path.getSegmentList().size() >= 2) {
+                if (path.isFavourable()) {
+                    favDirectPath = path;
+                } else {
+                    homDirectPath = path;
+                }
+            }
+        }
+        assertNotNull(favDirectPath, "Should find a favorable direct path with diffraction");
+        assertNotNull(homDirectPath, "Should find a homogeneous direct path with diffraction");
+
+        // Should have diffraction
+        boolean hasDiffraction = favDirectPath.getPointList().stream()
+                .anyMatch(p -> p.type.name().startsWith("DIF"));
+        assertTrue(hasDiffraction, "Diffraction should be triggered by wall above S-R line");
+
+        // delta should be positive (wall above S-R line)
+        assertTrue(favDirectPath.delta > 0,
+                "Favorable delta should be positive for wall above S-R line");
+
+        // deltaPrime should be positive and bounded
+        assertTrue(favDirectPath.deltaPrime > 0,
+                "Favorable deltaPrime should be positive");
+        assertTrue(favDirectPath.deltaPrime < 50,
+                "DeltaPrime should be bounded for a single wall");
+
+        // Favorable delta/deltaPrime should be close to homogeneous (curvature effect small at 50m)
+        double deltaDiff = Math.abs(favDirectPath.delta - homDirectPath.delta);
+        assertTrue(deltaDiff < Math.max(1.0, homDirectPath.delta * 0.5),
+                String.format("Favorable delta (%.4f) should be close to homogeneous (%.4f)",
+                        favDirectPath.delta, homDirectPath.delta));
+
+        double deltaPrimeDiff = Math.abs(favDirectPath.deltaPrime - homDirectPath.deltaPrime);
+        assertTrue(deltaPrimeDiff < Math.max(1.0, homDirectPath.deltaPrime * 0.5),
+                String.format("Favorable deltaPrime (%.4f) should be close to homogeneous (%.4f)",
+                        favDirectPath.deltaPrime, homDirectPath.deltaPrime));
+
+        // aDif should be physically bounded
+        assertTrue(Arrays.stream(favDirectPath.aDif).allMatch(d -> d >= -25),
+                "Diffraction attenuation should be >= -25 dB");
+
+        // Global attenuation must be negative
+        assertTrue(Arrays.stream(favDirectPath.aGlobal).allMatch(d -> d < 0),
+                "Global attenuation should be negative");
+        assertTrue(Arrays.stream(favDirectPath.aGlobalRaw).allMatch(d -> d < 0),
+                "Raw global attenuation should be negative");
+
+        // Precise numeric assertions
+        assertEquals(0.0, favDirectPath.e, ERROR_EPSILON_LOWEST);
+        assertEquals(0.5885, favDirectPath.delta, ERROR_EPSILON_VERY_LOW);
+        assertEquals(2.7190, favDirectPath.deltaPrime, ERROR_EPSILON_VERY_LOW);
+        assertEquals(1.0031, favDirectPath.deltaSPrimeR, ERROR_EPSILON_VERY_LOW);
+        assertEquals(1.9853, favDirectPath.deltaSRPrime, ERROR_EPSILON_VERY_LOW);
+    }
+
+
+    /**
+     * JSON-based standalone regression test for single-diffraction favorable path.
+     * Loads the CutProfile previously generated by regressionSingleDifFavourable_DeltaPrime.
+     */
+    @Test
+    public void regressionSingleDifFavourable_Standalone() throws IOException {
+        AttenuationComputeOutput propDataOut = computeCnossosPath(
+                AttenuationComputeOutputCnossosTest.class.getResource("RegressionTestSingleDif.json"));
+        assertNotNull(propDataOut);
+        assertEquals(2, propDataOut.getPropagationPaths().size());
+
+        CnossosPath homPath = propDataOut.getPropagationPaths().get(0);
+        assertFalse(homPath.isFavourable());
+        CnossosPath favPath = propDataOut.getPropagationPaths().get(1);
+        assertTrue(favPath.isFavourable());
+        assertEquals(CutProfile.PROFILE_TYPE.DIRECT, favPath.getCutProfile().getProfileType());
+
+        // Single diffraction: 2 segments
+        assertEquals(2, favPath.getSegmentList().size());
+        // delta positive (wall above SR line)
+        assertTrue(favPath.delta > 0);
+        // deltaPrime positive and bounded
+        assertTrue(favPath.deltaPrime > 0);
+        assertTrue(favPath.deltaPrime < 50);
+        // Favorable close to homogeneous
+        assertTrue(Math.abs(favPath.deltaPrime - homPath.deltaPrime) < 1.0);
+        // aDif physically bounded
+        assertTrue(Arrays.stream(favPath.aDif).allMatch(d -> d >= -25));
+        // Global attenuation negative
+        assertTrue(Arrays.stream(favPath.aGlobal).allMatch(d -> d < 0));
+        assertTrue(Arrays.stream(favPath.aGlobalRaw).allMatch(d -> d < 0));
+
+        // Precise numeric assertions (same geometry as scene-based test)
+        assertEquals(0.0, favPath.e, ERROR_EPSILON_LOWEST);
+        assertEquals(0.5885, favPath.delta, ERROR_EPSILON_VERY_LOW);
+        assertEquals(2.7190, favPath.deltaPrime, ERROR_EPSILON_VERY_LOW);
+        assertEquals(1.0031, favPath.deltaSPrimeR, ERROR_EPSILON_VERY_LOW);
+        assertEquals(1.9853, favPath.deltaSRPrime, ERROR_EPSILON_VERY_LOW);
     }
 
 

@@ -306,8 +306,8 @@ public class AttenuationCnossos {
                 s = pointPath.coordinate;
             } else if (pointPath.type.equals(REFL)) {
                 // Look for the next DIFH of the receiver
-                for(int idPointNext=0; idPointNext<pointList.size(); idPointNext++) {
-                    PointPath pointPathNext = pointList.get(idPoint);
+                for(int idPointNext=idPoint+1; idPointNext<pointList.size(); idPointNext++) {
+                    PointPath pointPathNext = pointList.get(idPointNext);
                     if (pointPathNext.type.equals(DIFH)) {
                         r = pointPathNext.coordinate;
                         break;
@@ -335,7 +335,8 @@ public class AttenuationCnossos {
                     } else {
                         for (int i = 0; i < data.getFrequencies().size(); i++) {
                             double lambda = 340.0 / data.getFrequencies().get(i);
-                            double Csecond = 1 + (5 * lambda / e * 5 * lambda / e) / 1 / 3 + (5 * lambda / e * 5 * lambda / e);
+                            double x = 5.0 * lambda / e;
+                            double Csecond = (1.0 + x * x) / (1.0/3.0 + x * x);
                             double testForm = 40.0 / lambda * Csecond * deltaPrime;
                             double dLRetro = testForm >= -2 ? 10 * ch * log10(3 + testForm) : 0; // 2.5.37
                             retroDiff[i] = dLRetro;

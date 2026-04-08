@@ -151,12 +151,9 @@ inputs = [
         paramWallAlpha          : [
                 name       : 'wallAlpha',
                 title      : 'Wall absorption coefficient',
-                description: 'Wall absorption coefficient (FLOAT) </br> </br>' +
-                        'This coefficient is going <br> <ul>' +
-                        '<li> from 0 : fully absorbent </li>' +
-                        '<li> to strictly less than 1 : fully reflective. </li> </ul>' +
+                description: 'Wall absorption coefficient [0,1] (between ``0`` : "fully reflective" and ``1`` : "fully absorbent")' +
                         '&#128736; Default value: <b>0.1 </b> ',
-                min        : 0, max: 1, type: String.class
+                min        : 0, max: 1, type: Double.class
         ],
         confReflOrder           : [
                 name       : 'Order of reflexion',
@@ -164,30 +161,30 @@ inputs = [
                 description: 'Maximum number of reflections to be taken into account (INTEGER). </br> </br>' +
                         '&#x1F6A8; Adding 1 order of reflexion can significantly increase the processing time. </br> </br>' +
                         '&#128736; Default value: <b>1 </b>',
-                min        : 0, max: 1, type: String.class
+                min        : 0, max: 1, type: Integer.class
         ],
         confMaxSrcDist          : [
                 name       : 'Maximum source-receiver distance',
                 title      : 'Maximum source-receiver distance',
                 description: 'Maximum distance between source and receiver (FLOAT, in meters). </br> </br>' +
-                        '&#128736; Default value: <b>150 </b>',
-                min        : 0, max: 1, type: String.class
+                        '&#128736; Default value: <b>150 </b> </br> </br>' +
+                        '<img src="/wps_images/acoustics_parameters_confMaxSrcDist.png" alt="Noise level from source" width="95%" align="center">',
+                min        : 0, max: 1, type: Double.class
         ],
         confMaxReflDist         : [
                 name       : 'Maximum source-reflexion distance',
                 title      : 'Maximum source-reflexion distance',
-                description: 'Maximum reflection distance from the source (FLOAT, in meters). </br> </br>' +
-                        '&#128736; Default value: <b>50 </b>',
-                min        : 0, max: 1, type: String.class
+                description: 'Maximum search distance of walls / facades from the "Source-Receiver" segment, for the calculation of specular reflections (meters). </br> </br>' +
+                        '&#128736; Default value: <b>50 </b> </br> </br>' +
+                        '<img src="/wps_images/acoustics_parameters_confMaxReflDist.png" alt="Noise level from source" width="95%" align="center">',
+                min        : 0, max: 1, type: Double.class
         ],
         confThreadNumber        : [
                 name       : 'Thread number',
                 title      : 'Thread number',
                 description: 'Number of thread to use on the computer (INTEGER). </br> </br>' +
-                        'To set this value, look at the number of cores you have. </br>' +
-                        'If it is set to 0, use the maximum number of cores available.</br> </br>' +
-                        '&#128736; Default value: <b>0 </b>',
-                min        : 0, max: 1, type: String.class
+                        '&#128736; Default value: <b>0 = Automatic. Will check the number of cores and apply -1. (*e.g*: 8 cores = 7 cores will be used</b>',
+                min        : 0, max: 1, type: Integer.class
         ],
         confDiffVertical        : [
                 name       : 'Diffraction on vertical edges',
@@ -214,7 +211,7 @@ inputs = [
         confHumidity            : [
                 name       : 'Relative humidity',
                 title      : 'Relative humidity',
-                description: '&#127783; Humidity for noise propagation. </br> </br>' +
+                description: '&#127783; Humidity for noise propagation (%) [0,100]. </br> </br>' +
                         '&#128736; Default value: <b>70</b>',
                 min        : 0, max: 1,
                 type       : Double.class
@@ -222,7 +219,7 @@ inputs = [
         confTemperature         : [
                 name       : 'Temperature',
                 title      : 'Air temperature',
-                description: '&#127777; Air temperature in degree celsius </br> </br>' +
+                description: '&#127777; Air temperature (°C). </br> </br>' +
                         '&#128736; Default value: <b> 15</b>',
                 min        : 0, max: 1,
                 type       : Double.class
@@ -230,12 +227,9 @@ inputs = [
         confFavourableOccurrencesDefault: [
                 name       : 'Probability of occurrences',
                 title      : 'Probability of occurrences',
-                description: 'Comma-delimited string containing the default probability of occurrences of favourable propagation conditions. </br> </br>' +
-                        'The north slice is the last array index not the first one <br/>' +
-                        'Slice width are 22.5&#176;: (16 slices)</br> <ul>' +
-                        '<li>The first column 22.5&#176; contain occurrences between 11.25 to 33.75 &#176; </li>' +
-                        '<li>The last column 360&#176; contains occurrences between 348.75&#176; to 360&#176; and 0 to 11.25&#176; </li> </ul>' +
-                        '&#128736; Default value: <b>0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5</b>',
+                description: 'Comma-delimited string containing the probability ([0,1]) of occurrences of favourable propagation conditions. Follow the clockwise direction. The north slice is the last array index (n°16 in the schema below) not the first one. </br> </br>' +
+                        '&#128736; Default value: <b>0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5</b> </br> </br>' +
+                        '<img src="/wps_images/acoustics_parameters_confFavorableOccurrences.png" alt="Noise level from source" width="95%" align="center">',
                 min        : 0, max: 1,
                 type       : String.class
         ],
@@ -251,7 +245,8 @@ inputs = [
         confMaxError            : [
                 name       : 'Max Error (dB)',
                 title      : 'Max Error (dB)',
-                description: 'Threshold for excluding negligible sound sources in calculations. Default value: <b>0.1</b>',
+                description: 'Threshold for excluding negligible sound sources in calculations.' +
+                        'Default value: <b>0.1 This parameter is ignored if no emission level is specified or if you set it to 0 dB. This parameter have a great impact on computation time.</b>',
                 min        : 0, max: 1,
                 type       : Double.class
         ],

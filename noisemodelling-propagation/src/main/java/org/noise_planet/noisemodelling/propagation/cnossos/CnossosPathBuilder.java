@@ -113,7 +113,7 @@ public class CnossosPathBuilder {
                             pathParameters.deltaPrime = toCurve(seg1.dPrime, srSeg.dPrime) + toCurve(seg2.dPrime, srSeg.dPrime) - toCurve(srSeg.dPrime, srSeg.dPrime);
                         } else {
                             Coordinate pA = dSPrimeRPrime.pointAlong((o.x-srcPrime.x)/(rcvPrime.x-srcPrime.x));
-                            pathParameters.deltaPrime =2*toCurve(srcPrime.distance(pA), srSeg.dPrime) + 2*toCurve(pA.distance(srcPrime), srSeg.dPrime) - toCurve(seg1.dPrime, srSeg.dPrime) - toCurve(seg2.dPrime, srSeg.d) - toCurve(srSeg.dPrime, srSeg.dPrime);
+                            pathParameters.deltaPrime =2*toCurve(srcPrime.distance(pA), srSeg.dPrime) + 2*toCurve(pA.distance(rcvPrime), srSeg.dPrime) - toCurve(seg1.dPrime, srSeg.dPrime) - toCurve(seg2.dPrime, srSeg.dPrime) - toCurve(srSeg.dPrime, srSeg.dPrime);
                         }
                     }
 
@@ -490,14 +490,14 @@ public class CnossosPathBuilder {
             if (sr.orientationIndex(c0) == 1) {
                 cnossosPath.delta = toCurve(seg1.d, srPath.d) + toCurve(cnossosPath.e, srPath.d) + toCurve(seg2.d, srPath.d) - toCurve(srPath.d, srPath.d);
             } else {
-                Coordinate pA = sr.pointAlong((c0.x - srcPrime.x) / (rcvPrime.x - srcPrime.x));
+                Coordinate pA = sr.pointAlong((c0.x - src.x) / (rcv.x - src.x));
                 cnossosPath.delta =
-                        2 * toCurve(srcPrime.distance(pA), srPath.dPrime) +
-                        2 * toCurve(pA.distance(rcvPrime), srPath.dPrime) -
-                        toCurve(seg1.dPrime, srPath.dPrime) -
-                        toCurve(cnossosPath.e, srPath.dPrime) -
-                        toCurve(seg2.dPrime, srPath.dPrime) -
-                        toCurve(srPath.dPrime, srPath.dPrime);
+                        2 * toCurve(src.distance(pA), srPath.d) +
+                        2 * toCurve(pA.distance(rcv), srPath.d) -
+                        toCurve(seg1.d, srPath.d) -
+                        toCurve(cnossosPath.e, srPath.d) -
+                        toCurve(seg2.d, srPath.d) -
+                        toCurve(srPath.d, srPath.d);
             }
         }
 
@@ -505,10 +505,10 @@ public class CnossosPathBuilder {
             cnossosPath.deltaPrime = dSPrimeRPrime.orientationIndex(c0) * (seg1.dPrime + cnossosPath.e + seg2.dPrime - srPath.dPrime);
         } else {
             if(dSPrimeRPrime.orientationIndex(c0) == 1) {
-                cnossosPath.deltaPrime = toCurve(seg1.dPrime, srPath.dPrime) + toCurve(seg2.dPrime, srPath.dPrime) - toCurve(srPath.dPrime, srPath.dPrime);
+                cnossosPath.deltaPrime = toCurve(seg1.dPrime, srPath.dPrime) + toCurve(cnossosPath.e, srPath.dPrime) + toCurve(seg2.dPrime, srPath.dPrime) - toCurve(srPath.dPrime, srPath.dPrime);
             } else {
                 Coordinate pA = dSPrimeRPrime.pointAlong((c0.x-srcPrime.x)/(rcvPrime.x-srcPrime.x));
-                cnossosPath.deltaPrime =2*toCurve(srcPrime.distance(pA), srPath.dPrime) + 2*toCurve(pA.distance(srcPrime), srPath.dPrime) - toCurve(seg1.dPrime, srPath.dPrime) - toCurve(seg2.dPrime, srPath.d) - toCurve(srPath.dPrime, srPath.dPrime);
+                cnossosPath.deltaPrime =2*toCurve(srcPrime.distance(pA), srPath.dPrime) + 2*toCurve(pA.distance(rcvPrime), srPath.dPrime) - toCurve(seg1.dPrime, srPath.dPrime) - toCurve(cnossosPath.e, srPath.dPrime) - toCurve(seg2.dPrime, srPath.dPrime) - toCurve(srPath.dPrime, srPath.dPrime);
             }
         }
         return cnossosPath;

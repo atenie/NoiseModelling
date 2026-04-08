@@ -5457,14 +5457,17 @@ public class AttenuationComputeOutputCnossosTest {
 
     /**
      * TC26 – Road source with influence of retrodiffraction
-     * Issue we compute and add favourable contribution, on reflexion path but not in test case reference
-     * */
+     * No favourable reflection path: in favorable conditions the curved ray passes over the wall.
+     * EU Directive 2002/49 (consolidated 29.07.2021), Annex II, §2.5.20:
+     * "le point de réflexion est construit à l'aide de lignes droites dans des conditions de propagation
+     * homogènes et de lignes courbes dans des conditions de propagation favorables"
+     */
     @Test
     public void TC26() throws IOException {
 
         AttenuationComputeOutput propDataOut =  computeCnossosPath("TC26_Direct", "TC26_Reflection");
 
-        assertEquals(4, propDataOut.getPropagationPaths().size());
+        assertEquals(3, propDataOut.getPropagationPaths().size());
 
         final CnossosPath cnossosPathDirectH = propDataOut.getPropagationPaths().get(0);
         assertFalse(cnossosPathDirectH.isFavourable());
@@ -5476,10 +5479,6 @@ public class AttenuationComputeOutputCnossosTest {
         CnossosPath cnossosPathReflectionH = propDataOut.getPropagationPaths().get(2);
         assertFalse(cnossosPathReflectionH.isFavourable());
         assertEquals(CutProfile.PROFILE_TYPE.REFLECTION, cnossosPathReflectionH.getCutProfile().getProfileType());
-
-        CnossosPath cnossosPathReflectionF = propDataOut.getPropagationPaths().get(3);
-        assertTrue(cnossosPathReflectionF.isFavourable());
-        assertEquals(CutProfile.PROFILE_TYPE.REFLECTION, cnossosPathReflectionF.getCutProfile().getProfileType());
 
         //Expected values
         //Path0 : vertical plane
@@ -5553,7 +5552,8 @@ public class AttenuationComputeOutputCnossosTest {
         actualADiv = cnossosPathReflectionH.aDiv;
         actualABoundaryH = cnossosPathReflectionH.double_aBoundary;
         actualLH = addArray(cnossosPathReflectionH.aGlobalRaw, SOUND_POWER_LEVELS);
-        actualL = addArray(sumDbArray(cnossosPathReflectionH.aGlobal, cnossosPathReflectionF.aGlobal), SOUND_POWER_LEVELS);
+        // No favorable reflection path, use aGlobal which accounts for p=0.5 weighting
+        actualL = addArray(cnossosPathReflectionH.aGlobal, SOUND_POWER_LEVELS);
         actualLA = addArray(actualL, A_WEIGHTING);
 
         assertDoubleArrayEquals("WH - reflexion", expectedWH, actualWH, ERROR_EPSILON_LOWEST);
@@ -5564,12 +5564,12 @@ public class AttenuationComputeOutputCnossosTest {
         assertDoubleArrayEquals("ADiv - reflexion", expectedADiv, actualADiv, ERROR_EPSILON_VERY_LOW);
         assertDoubleArrayEquals("ABoundaryH - reflexion", expectedABoundaryH, actualABoundaryH, ERROR_EPSILON_VERY_LOW);
         assertDoubleArrayEquals("LH - reflexion", expectedLH, actualLH, ERROR_EPSILON_VERY_LOW);
-        assertDoubleArrayEquals("L - reflexion", expectedL, actualL, ERROR_EPSILON_HIGH);
-        assertDoubleArrayEquals("LA - reflexion", expectedLA, actualLA, ERROR_EPSILON_HIGH);
+        assertDoubleArrayEquals("L - reflexion", expectedL, actualL, ERROR_EPSILON_VERY_LOW);
+        assertDoubleArrayEquals("LA - reflexion", expectedLA, actualLA, ERROR_EPSILON_VERY_LOW);
 
         double[] L = addArray(propDataOut.getVerticesSoundLevel().get(0).levels, new double[]{93-26.2,93-16.1,93-8.6,93-3.2,93,93+1.2,93+1.0,93-1.1});
 
-        assertArrayEquals(  new double[]{17.50,27.52,34.89,40.14,43.10,43.59,40.55,29.15},L, ERROR_EPSILON_LOW);
+        assertArrayEquals(  new double[]{17.50,27.52,34.89,40.14,43.10,43.59,40.55,29.15},L, ERROR_EPSILON_VERY_LOW);
     }
 
 

@@ -259,23 +259,16 @@ def exec(Connection connection, Map input) {
         maxCellDist = input['maxCellDist'] as Double
     }
 
-    Double height = 4.0
-    if (input['height']) {
-        height = input['height'] as Double
-    }
+    double height = input.getOrDefault("height",4.0) as Double
 
-    Double roadWidth = 2.0
-    if (input['roadWidth']) {
-        roadWidth = input['roadWidth'] as Double
-    }
+
+    double roadWidth = input.getOrDefault("roadWidth",2.0) as Double
 
     // Receiver-to-building minimum distance (meters).
     // New parameter: prevents adding receivers too close to building footprints.
     // Default: 2.0 m.
-    Double buildingBuffer = 2.0
-    if (input['buildingBuffer']) {
-        buildingBuffer = input['buildingBuffer'] as Double
-    }
+    double buildingBuffer = input.getOrDefault("buildingBuffer",2.0) as Double
+
 
     Double maxArea = 2500
     if (input.containsKey('maxArea')) {
@@ -288,12 +281,9 @@ def exec(Connection connection, Map input) {
     }
 
     boolean skipCellNoSources = false
-    Double skipCellNoSourcesMinimalDistance = 0.0
-    if (input.containsKey('skipCellNoSourcesMinimalDistance')) {
-        skipCellNoSourcesMinimalDistance = input['skipCellNoSourcesMinimalDistance'] as Double
-        if(skipCellNoSourcesMinimalDistance > 0) {
-            skipCellNoSources = true
-        }
+    double skipCellNoSourcesMinimalDistance = input.getOrDefault("skipCellNoSourcesMinimalDistance",0.0) as Double
+    if(skipCellNoSourcesMinimalDistance > 0.0) {
+        skipCellNoSources = true
     }
 
     int srid = GeometryTableUtilities.getSRID(connection, TableLocation.parse(building_table_name))
@@ -371,19 +361,18 @@ def exec(Connection connection, Map input) {
     delaunayReceiversMaker.setIsoSurfaceInBuildings(isoSurfaceInBuildings)
 
     // Apply negative envelope parameter
-    if (input.containsKey('fenceNegativeBuffer')) {
-        double negativeBuffer = input['fenceNegativeBuffer'] as Double
-        if(negativeBuffer > 0) {
-            Envelope envelope;
-            if(fence != null) {
-                envelope = fence.getEnvelopeInternal()
-            } else {
-                envelope = delaunayReceiversMaker.getComputationEnvelope(connection);
-            }
-            envelope.expandBy(-negativeBuffer)
-            delaunayReceiversMaker.setMainEnvelope(envelope)
+    double negativeBuffer = input.getOrDefault("fenceNegativeBuffer",0.0) as Double
+    if(negativeBuffer > 0) {
+        Envelope envelope;
+        if(fence != null) {
+            envelope = fence.getEnvelopeInternal()
+        } else {
+            envelope = delaunayReceiversMaker.getComputationEnvelope(connection);
         }
+        envelope.expandBy(-negativeBuffer)
+        delaunayReceiversMaker.setMainEnvelope(envelope)
     }
+
 
     if(input['errorDumpFolder']) {
         // Will write the input mesh in this folder in order to

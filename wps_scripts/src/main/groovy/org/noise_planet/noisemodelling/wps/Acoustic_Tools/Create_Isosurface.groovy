@@ -147,20 +147,6 @@ def exec(Connection connection, Map input) {
         isoSurface.setSmoothCoefficient(coefficient)
     }
 
-    /*if (input.containsKey("smoothCoefficient")) {
-        double coefficient = input['smoothCoefficient'] as Double
-        if (coefficient < 0.01) {
-            isoSurface.setSmooth(false)
-        } else {
-            isoSurface.setSmooth(true)
-            isoSurface.setSmoothCoefficient(coefficient)
-        }
-    }
-    else {
-        isoSurface.setSmooth(true)
-        isoSurface.setSmoothCoefficient(0.5)
-    }*/
-
     isoSurface.createTable(connection, "IDRECEIVER")
 
     resultString = "Table " + isoSurface.getOutputTable() + " created"

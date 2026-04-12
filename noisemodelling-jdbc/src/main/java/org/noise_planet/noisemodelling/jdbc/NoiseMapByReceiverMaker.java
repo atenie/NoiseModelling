@@ -346,16 +346,44 @@ public class NoiseMapByReceiverMaker extends GridMapMaker {
     public void run(Connection connection, ProgressVisitor progressLogger) throws SQLException {
         initialize(connection);
 
-        // Set of already processed receivers
-        Set<Long> receivers = new HashSet<>();
 
         // Fetch cell identifiers with receivers
         Map<CellIndex, Integer> cells = searchPopulatedCells(connection);
         ProgressVisitor progressVisitor = progressLogger.subProcess(cells.size());
 
+        // Track which receivers were added per latitude row so old entries can be evicted.
+        // A receiver on a row boundary may appear in two consecutive latitude rows, but
+        // never in a row two or more steps back — so entries ≥2 rows behind are safe to remove.
+        Map<Integer, List<Long>> receiversByLatRow = new HashMap<>();
+        int[] currentLat = {-1};
+
+        Set<Long> receivers = new HashSet<Long>() {
+            @Override
+            public boolean add(Long pk) {
+                boolean added = super.add(pk);
+                if (added) {
+                    receiversByLatRow
+                            .computeIfAbsent(currentLat[0], k -> new ArrayList<>())
+                            .add(pk);
+                }
+                return added;
+            }
+        };
+
         try {
             computeRaysOutFactory.start(progressVisitor);
             for (CellIndex cellIndex : new TreeSet<>(cells.keySet())) {
+                currentLat[0] = cellIndex.getLatitudeIndex();
+
+                // Evict receivers from latitude rows ≥2 behind the current one
+                receiversByLatRow.entrySet().removeIf(entry -> {
+                    if (currentLat[0] - entry.getKey() >= 2) {
+                        entry.getValue().forEach(receivers::remove);
+                        return true;
+                    }
+                    return false;
+                });
+
                 // Run ray propagation
                 try {
                     evaluateCell(connection, cellIndex, progressVisitor, receivers);

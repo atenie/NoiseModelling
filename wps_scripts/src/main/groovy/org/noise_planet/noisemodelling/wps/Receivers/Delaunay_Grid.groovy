@@ -331,6 +331,11 @@ def exec(Connection connection, Map input) {
     sql.execute(String.format("DROP TABLE IF EXISTS %s", receivers_table_name))
     sql.execute("DROP TABLE IF EXISTS TRIANGLES")
 
+    logger.info("Generating spatial index on " + receivers_table_name)
+    // Creating spacial indices on tables
+    ensureSpatialIndex(connection, receivers_table_name)
+    ensureSpatialIndex(connection, 'TRIANGLES')
+
     // Generate receivers grid for noise map rendering
     DelaunayReceiversMaker delaunayReceiversMaker = new DelaunayReceiversMaker(building_table_name, sources_table_name)
 
@@ -396,16 +401,6 @@ def exec(Connection connection, Map input) {
                 "input geometries for debugging purpose")
         throw ex
     }
-
-    logger.info("Generating spatial index on " + receivers_table_name)
-    // Ensure spatial indexes on output tables (if missing)
-    ensureSpatialIndex(connection, receivers_table_name)
-
-    if(exportTriangles) {
-        logger.info("Generating spatial index on TRIANGLES")
-        ensureSpatialIndex(connection, 'TRIANGLES')
-    }
-
 
     long processTime = System.currentTimeMillis() - startTime
     logger.info("Delaunay grid computed in " + (processTime / 1000) + " seconds.")

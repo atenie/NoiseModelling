@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import java.sql.*;
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.h2gis.utilities.dbtypes.DBUtils.getDBType;
 import static org.noise_planet.noisemodelling.emission.utils.Utils.dbaToW;
@@ -58,6 +59,7 @@ public class IsoSurface {
     public static final List<Double> NF31_133_ISO = Collections.unmodifiableList(Arrays.asList(35.0,40.0,45.0,50.0,55.0,60.0,65.0,70.0,75.0,80.0,200.0));
 
     private int exportDimension = 2;
+    private GeometryFactory factory;
 
     /**
      * @param isoLevels Iso levels in dB. First range start with -Infinity then first level excluded.
@@ -66,6 +68,7 @@ public class IsoSurface {
         this.isoLevels = new ArrayList<>(isoLevels.size());
         this.isoLabels = new ArrayList<>(isoLevels.size());
         this.srid = srid;
+        this.factory = new GeometryFactory(new PrecisionModel(), srid);
         DecimalFormat format = new DecimalFormat("#.##");
         for (int idiso = 0; idiso < isoLevels.size(); idiso++) {
             double lvl = isoLevels.get(idiso);
@@ -372,35 +375,30 @@ public class IsoSurface {
      * @param period Time period to output
      * @param aggregateByPeriod Output time period in the fields
      */
-    void processCell(Connection connection, int cellId, Map<Short, ArrayList<Geometry>> polys, String period, boolean aggregateByPeriod) throws SQLException {
-        // First step
-        // Smoothing of polygons
-        GeometryFactory factory = new GeometryFactory(new PrecisionModel(), srid);
+    void processCell(PreparedStatement ps, int cellId, Map<Short, ArrayList<Geometry>> polys, String period, boolean aggregateByPeriod) throws SQLException {
         if(smooth) {
             Quadtree segmentTree = new Quadtree();
-            // Merge triangles and create an index of all segments
-            for (Map.Entry<Short, ArrayList<Geometry>> entry : polys.entrySet()) {
-                // Merge triangles
-                CascadedPolygonUnion union = new CascadedPolygonUnion(entry.getValue());
-                Geometry mergeTriangles = union.union();
+            // Step 1: Union triangles per iso level in parallel (independent per level)
+            Map<Short, Geometry> mergedGeoms = polys.entrySet().parallelStream()
+                    .collect(Collectors.toMap(Map.Entry::getKey,
+                            e -> new CascadedPolygonUnion(e.getValue()).union()));
+            // Step 2: Sequential bezier control point computation (shared segmentTree)
+            for (Map.Entry<Short, Geometry> e : mergedGeoms.entrySet()) {
                 ArrayList<Polygon> polygons = new ArrayList<>();
-                explode(mergeTriangles, polygons);
+                explode(e.getValue(), polygons);
                 for(Polygon polygon : polygons) {
-                    Coordinate[] extRing = polygon.getExteriorRing().getCoordinates();
-                    computeBezierControlPoints(extRing, smoothCoefficient, segmentTree);
-                    LinearRing[] holes = new LinearRing[polygon.getNumInteriorRing()];
-                    for(int idHole = 0; idHole < holes.length; idHole++) {
+                    computeBezierControlPoints(polygon.getExteriorRing().getCoordinates(), smoothCoefficient, segmentTree);
+                    for(int idHole = 0; idHole < polygon.getNumInteriorRing(); idHole++) {
                         computeBezierControlPoints(polygon.getInteriorRingN(idHole).getCoordinates(), smoothCoefficient, segmentTree);
                     }
                 }
-                // Replace triangles by polygons
-                entry.getValue().clear();
-                entry.getValue().add(mergeTriangles);
+                polys.get(e.getKey()).clear();
+                polys.get(e.getKey()).add(e.getValue());
             }
-            // Using precomputed (shared) Bezier control points smooth polygons
-            for (Map.Entry<Short, ArrayList<Geometry>> entry : polys.entrySet()) {
-                ArrayList<Geometry> newPolygons = new ArrayList<>();
+            // Step 3: Parallel bezier curve generation (segmentTree is read-only here)
+            polys.entrySet().parallelStream().forEach(entry -> {
                 if(entry.getValue().size() == 1) {
+                    ArrayList<Geometry> newPolygons = new ArrayList<>();
                     ArrayList<Polygon> polygons = new ArrayList<>();
                     explode(entry.getValue().get(0), polygons);
                     for(Polygon polygon : polygons) {
@@ -424,85 +422,79 @@ public class IsoSurface {
                     entry.getValue().clear();
                     entry.getValue().addAll(newPolygons);
                 }
+            });
+        }
+        // Second step: collect polygons (parallel union if needed) then batch insert
+        final Map<Short, List<Polygon>> polygonsByLevel;
+        if(!smooth && mergeTriangles) {
+            // Union per iso level in parallel (independent per level)
+            polygonsByLevel = polys.entrySet().parallelStream()
+                    .collect(Collectors.toMap(Map.Entry::getKey, e -> {
+                        ArrayList<Polygon> result = new ArrayList<>();
+                        try {
+                            explode(new CascadedPolygonUnion(e.getValue()).union(), result);
+                        } catch (TopologyException t) {
+                            log.warn(t.getLocalizedMessage(), t);
+                            explode(factory.createGeometryCollection(e.getValue().toArray(new Geometry[0])), result);
+                        }
+                        return result;
+                    }));
+        } else {
+            polygonsByLevel = new HashMap<>();
+            for (Map.Entry<Short, ArrayList<Geometry>> e : polys.entrySet()) {
+                ArrayList<Polygon> result = new ArrayList<>();
+                explode(factory.createGeometryCollection(e.getValue().toArray(new Geometry[0])), result);
+                polygonsByLevel.put(e.getKey(), result);
             }
         }
-        // Second step insertion
         int batchSize = 0;
-        StringBuilder insertQuery = new StringBuilder().append("INSERT INTO ").append(TableLocation.parse(outputTable))
-                .append("(cell_id");
-        if(aggregateByPeriod) {
-            insertQuery.append(", PERIOD");
-        }
-        insertQuery.append(", the_geom, ISOLVL, ISOLABEL) VALUES (?");
-        if(aggregateByPeriod) {
-            insertQuery.append(", ?");
-        }
-        insertQuery.append(", ?, ?, ?);");
-        try(PreparedStatement ps = connection.prepareStatement(insertQuery.toString())) {
-            for (Map.Entry<Short, ArrayList<Geometry>> entry : polys.entrySet()) {
-                ArrayList<Polygon> polygons = new ArrayList<>();
-                if(!smooth && mergeTriangles) {
-                    // Merge triangles
-                    try {
-                        CascadedPolygonUnion union = new CascadedPolygonUnion(entry.getValue());
-                        Geometry mergeTriangles = union.union();
-                        explode(mergeTriangles, polygons);
-                    } catch (TopologyException t) {
-                        log.warn(t.getLocalizedMessage(), t);
-                        explode(factory.createGeometryCollection(entry.getValue().toArray(new Geometry[0])), polygons);
-                    }
-                } else {
-                    explode(factory.createGeometryCollection(entry.getValue().toArray(new Geometry[0])), polygons);
-                }
-                for(Polygon polygon : polygons) {
-                    int geomDim = 0;
-                    boolean mixedDimension = false;
-                    for(Coordinate coordinate : polygon.getExteriorRing().getCoordinates()) {
-                        if(Double.isNaN(coordinate.getZ())) {
-                            if(geomDim == 0) {
-                                geomDim = 2;
-                            } else if (geomDim == 3) {
-                                mixedDimension = true;
-                            }
-                        } else {
-                            if(geomDim == 0) {
-                                geomDim = 3;
-                            } else if (geomDim == 2) {
-                                mixedDimension = true;
-                            }
+        for (Map.Entry<Short, List<Polygon>> entry : polygonsByLevel.entrySet()) {
+            for(Polygon polygon : entry.getValue()) {
+                int geomDim = 0;
+                boolean mixedDimension = false;
+                for(Coordinate coordinate : polygon.getExteriorRing().getCoordinates()) {
+                    if(Double.isNaN(coordinate.getZ())) {
+                        if(geomDim == 0) {
+                            geomDim = 2;
+                        } else if (geomDim == 3) {
+                            mixedDimension = true;
+                        }
+                    } else {
+                        if(geomDim == 0) {
+                            geomDim = 3;
+                        } else if (geomDim == 2) {
+                            mixedDimension = true;
                         }
                     }
-                    if(geomDim != exportDimension || mixedDimension) {
-                        // Have to force geometry dimension one way
-                        if(exportDimension == 3) {
-                            polygon = ST_Force3D.convert(polygon, 0);
-                            polygon.setSRID(srid);
-                        } else {
-                            // remove z
-                            polygon = (Polygon)ST_Force2D.force2D(polygon);
-                            polygon.setSRID(srid);
-                        }
-                    }
-                    int parameterIndex = 1;
-                    ps.setInt(parameterIndex++, cellId);
-                    if(aggregateByPeriod) {
-                        ps.setString(parameterIndex++, period);
-                    }
-                    ps.setObject(parameterIndex++, polygon);
-                    ps.setInt(parameterIndex++, entry.getKey());
-                    ps.setString(parameterIndex++, isoLabels.get(entry.getKey()));
-                    ps.addBatch();
-                    batchSize++;
-                    if (batchSize >= BATCH_MAX_SIZE) {
-                        ps.executeBatch();
-                        ps.clearBatch();
-                        batchSize = 0;
+                }
+                if(geomDim != exportDimension || mixedDimension) {
+                    if(exportDimension == 3) {
+                        polygon = ST_Force3D.convert(polygon, 0);
+                        polygon.setSRID(srid);
+                    } else {
+                        polygon = (Polygon)ST_Force2D.force2D(polygon);
+                        polygon.setSRID(srid);
                     }
                 }
+                int parameterIndex = 1;
+                ps.setInt(parameterIndex++, cellId);
+                if(aggregateByPeriod) {
+                    ps.setString(parameterIndex++, period);
+                }
+                ps.setObject(parameterIndex++, polygon);
+                ps.setInt(parameterIndex++, entry.getKey());
+                ps.setString(parameterIndex++, isoLabels.get(entry.getKey()));
+                ps.addBatch();
+                batchSize++;
+                if (batchSize >= BATCH_MAX_SIZE) {
+                    ps.executeBatch();
+                    ps.clearBatch();
+                    batchSize = 0;
+                }
             }
-            if (batchSize > 0) {
-                ps.executeBatch();
-            }
+        }
+        if (batchSize > 0) {
+            ps.executeBatch();
         }
     }
 
@@ -549,7 +541,6 @@ public class IsoSurface {
     public void createTable(Connection connection, String pkField) throws SQLException {
         DBTypes dbType = DBUtils.getDBType(connection.unwrap(Connection.class));
         final String periodField = TableLocation.capsIdentifier("PERIOD", dbType);
-        GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), srid);
         boolean aggregateByPeriod = JDBCUtilities.hasField(connection, pointTable, periodField);
         int lastCellId = -1;
         try(Statement st = connection.createStatement()) {
@@ -570,6 +561,20 @@ public class IsoSurface {
             createTableQuery.append(", CELL_ID INTEGER, THE_GEOM ")
                     .append(geometryType).append(", ISOLVL INTEGER, ISOLABEL VARCHAR);");
             st.execute(createTableQuery.toString());
+
+            // Prepare insert statement once — reused across all cells instead of per-cell
+            StringBuilder insertQueryBuilder = new StringBuilder()
+                    .append("INSERT INTO ").append(TableLocation.parse(outputTable, dbType))
+                    .append("(cell_id");
+            if(aggregateByPeriod) {
+                insertQueryBuilder.append(", PERIOD");
+            }
+            insertQueryBuilder.append(", the_geom, ISOLVL, ISOLABEL) VALUES (?");
+            if(aggregateByPeriod) {
+                insertQueryBuilder.append(", ?");
+            }
+            insertQueryBuilder.append(", ?, ?, ?);");
+            PreparedStatement insertPs = connection.prepareStatement(insertQueryBuilder.toString());
 
             StringBuilder selectQuery =  new StringBuilder();
             selectQuery.append("SELECT CELL_ID, ST_X(p1.the_geom) xa,ST_Y(p1.the_geom) ya, ST_Z(p1.the_geom) za,")
@@ -666,7 +671,7 @@ public class IsoSurface {
                         int cellId = rs.getInt(cell_id);
                         // Process polygons of last cell
                         if (cellId != lastCellId && lastCellId != -1) {
-                            processCell(connection, cellId, polyMap, period, aggregateByPeriod);
+                            processCell(insertPs, cellId, polyMap, period, aggregateByPeriod);
                             polyMap.clear();
                             processedCells++;
                             if (totalCells > 0) {
@@ -694,14 +699,14 @@ public class IsoSurface {
                             }
                             ArrayList<Geometry> polygonsArray = polyMap.get(entry.getKey());
                             for (TriMarkers tri : entry.getValue()) {
-                                Polygon poly = geometryFactory.createPolygon(new Coordinate[]{tri.p0, tri.p1, tri.p2, tri.p0});
+                                Polygon poly = factory.createPolygon(new Coordinate[]{tri.p0, tri.p1, tri.p2, tri.p0});
                                 polygonsArray.add(poly);
                             }
                         }
                     }
                 }
                 if (!polyMap.isEmpty()) {
-                    processCell(connection, lastCellId, polyMap, period, aggregateByPeriod);
+                    processCell(insertPs, lastCellId, polyMap, period, aggregateByPeriod);
                     processedCells++;
                 }
                 log.info("IsoSurface: finished processing {}/{} cells{}", processedCells, totalCells,

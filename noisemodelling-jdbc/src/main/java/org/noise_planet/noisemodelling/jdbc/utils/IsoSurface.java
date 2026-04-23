@@ -587,6 +587,15 @@ public class IsoSurface {
 
             PreparedStatement statement = connection.prepareStatement(selectQuery.toString());
 
+            // Count total distinct cells for progress reporting
+            int totalCells = 0;
+            try (ResultSet countRs = st.executeQuery("SELECT COUNT(DISTINCT CELL_ID) FROM " + triangleTable)) {
+                if (countRs.next()) {
+                    totalCells = countRs.getInt(1);
+                }
+            }
+            log.info("IsoSurface: {} cells to process from {}", totalCells, triangleTable);
+
             List<String> periods = new ArrayList<>();
             if(!aggregateByPeriod) {
                 periods.add("");
@@ -599,6 +608,8 @@ public class IsoSurface {
                 }
                 // Cache iso for the current processing cell
                 Map<Short, ArrayList<Geometry>> polyMap = new HashMap<>();
+                int processedCells = 0;
+                int lastLoggedPercent = -1;
                 try (ResultSet rs = statement.executeQuery()) {
                     // Cache columns index
                     int xa = 0, xb = 0, xc = 0, ya = 0, yb = 0, yc = 0, za = 0, zb = 1, zc = 1, lvla = 0, lvlb = 0,
@@ -657,6 +668,14 @@ public class IsoSurface {
                         if (cellId != lastCellId && lastCellId != -1) {
                             processCell(connection, cellId, polyMap, period, aggregateByPeriod);
                             polyMap.clear();
+                            processedCells++;
+                            if (totalCells > 0) {
+                                int percent = (processedCells * 100) / totalCells;
+                                if (percent / 10 > lastLoggedPercent / 10) {
+                                    log.info("IsoSurface progress: {}/{} cells ({}%)", processedCells, totalCells, percent);
+                                    lastLoggedPercent = percent;
+                                }
+                            }
                         }
                         lastCellId = cellId;
                         // Split current triangle
@@ -683,7 +702,10 @@ public class IsoSurface {
                 }
                 if (!polyMap.isEmpty()) {
                     processCell(connection, lastCellId, polyMap, period, aggregateByPeriod);
+                    processedCells++;
                 }
+                log.info("IsoSurface: finished processing {}/{} cells{}", processedCells, totalCells,
+                        aggregateByPeriod ? " for period " + period : "");
             }
         }
         if(!connection.getAutoCommit()) {

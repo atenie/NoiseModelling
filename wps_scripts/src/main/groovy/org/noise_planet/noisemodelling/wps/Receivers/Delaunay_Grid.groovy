@@ -127,9 +127,9 @@ inputs = [
                 name       : 'Maximum Area',
                 title      : 'Maximum Area',
                 description: 'Set Maximum Area (in m2) (FLOAT).</br> </br>' +
-                             'No triangles larger than provided area will be created.</br>' +
-                             'Smaller area will create more receivers.</br> </br> ' +
-                             '&#128736; Default value: <b>2500 </b>',
+                        'No triangles larger than provided area will be created.</br>' +
+                        'Smaller area will create more receivers.</br> </br> ' +
+                        '&#128736; Default value: <b>2500 </b>',
                 min        : 0, max: 1,
                 type       : Double.class
         ],
@@ -137,7 +137,7 @@ inputs = [
                 name       : 'Height',
                 title      : 'Height',
                 description: 'Receiver height relative to the ground (in meters) (FLOAT).</br> </br>' +
-                             '&#128736; Default value: <b>4 </b>',
+                        '&#128736; Default value: <b>4 </b>',
                 min        : 0, max: 1,
                 type       : Double.class
         ],
@@ -145,8 +145,8 @@ inputs = [
                 name       : 'outputTableName',
                 title      : 'Name of output table',
                 description: 'Name of the output table.</br> </br>' +
-                             'Do not write the name of a table that contains a space.</br> </br>' +
-                             '&#128736; Default value: <b>RECEIVERS </b>',
+                        'Do not write the name of a table that contains a space.</br> </br>' +
+                        '&#128736; Default value: <b>RECEIVERS </b>',
                 min        : 0, max: 1,
                 type       : String.class
         ],
@@ -154,7 +154,7 @@ inputs = [
                 name        : 'Create IsoSurfaces over buildings',
                 title       : 'Create IsoSurfaces over buildings',
                 description : 'If enabled, isosurfaces will be visible at the location of buildings </br></br>' +
-                              '&#128736; Default value: <b>false </b>',
+                        '&#128736; Default value: <b>false </b>',
                 min         : 0, max: 1,
                 type        : Boolean.class
         ],
@@ -171,7 +171,7 @@ inputs = [
                 name        : 'In the triangles table, export triangles geometries',
                 title       : 'In the triangles table, export triangles geometries',
                 description : 'If enabled, the TRIANGLES table will contain the geometry of each triangle. </br></br>' +
-                              '&#128736; Default value: <b>false </b>',
+                        '&#128736; Default value: <b>false </b>',
                 min         : 0, max: 1,
                 type        : Boolean.class
         ],
@@ -331,10 +331,15 @@ def exec(Connection connection, Map input) {
     sql.execute(String.format("DROP TABLE IF EXISTS %s", receivers_table_name))
     sql.execute("DROP TABLE IF EXISTS TRIANGLES")
 
-    logger.info("Generating spatial index on " + receivers_table_name)
-    // Creating spacial indices on tables
+    // Pre-create output tables with spatial indexes before insertion
+    sql.execute(String.format("CREATE TABLE %s (pk serial NOT NULL, the_geom geometry(POINTZ, %d) NOT NULL, PRIMARY KEY (PK))", receivers_table_name, srid))
     ensureSpatialIndex(connection, receivers_table_name)
-    ensureSpatialIndex(connection, 'TRIANGLES')
+    if (exportTriangles) {
+        sql.execute(String.format("CREATE TABLE TRIANGLES (pk serial NOT NULL, the_geom geometry(POLYGONZ, %d), PK_1 integer not null, PK_2 integer not null, PK_3 integer not null, cell_id integer not null, PRIMARY KEY (PK))", srid))
+        ensureSpatialIndex(connection, 'TRIANGLES')
+    } else {
+        sql.execute("CREATE TABLE TRIANGLES (pk serial NOT NULL, PK_1 integer not null, PK_2 integer not null, PK_3 integer not null, cell_id integer not null, PRIMARY KEY (PK))")
+    }
 
     // Generate receivers grid for noise map rendering
     DelaunayReceiversMaker delaunayReceiversMaker = new DelaunayReceiversMaker(building_table_name, sources_table_name)
@@ -421,4 +426,3 @@ def exec(Connection connection, Map input) {
 
 
 }
-

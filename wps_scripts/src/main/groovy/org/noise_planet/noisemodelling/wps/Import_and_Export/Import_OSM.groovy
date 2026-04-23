@@ -45,41 +45,41 @@ import java.sql.Connection
 title = 'Import BUILDINGS, GROUND and ROADS tables from OSM'
 
 description = '&#10145;&#65039; Convert <b>.osm</b>, <b>.osm.gz</b> or <b>.osm.pbf</b> file into NoiseModelling input tables. We recommend using OSMBBBike : https://extract.bbbike.org/ </br>' +
-              '<hr>' +
-              'The following output tables will be created: <br>' +
-              '- <b> BUILDINGS </b>: a table containing the buildings<br>' +
-              '- <b> GROUND </b>: a table containing ground acoustic absorption, based on OSM landcover surfaces<br>' +
-              '- <b> ROADS </b>: a table containing the roads. As OSM does not include data on road traffic flows, default values are assigned according to the -Good Practice Guide for Strategic Noise Mapping and the Production of Associated Data on Noise Exposure - Version 2<br><br>' +
-              '&#128161; The user can choose to avoid creating some of these tables by checking the dedicated boxes </br> </br>' +
-              '<img src="/wps_images/import_osm_file.png" alt="Import OSM file" width="95%" align="center">'
+        '<hr>' +
+        'The following output tables will be created: <br>' +
+        '- <b> BUILDINGS </b>: a table containing the buildings<br>' +
+        '- <b> GROUND </b>: a table containing ground acoustic absorption, based on OSM landcover surfaces<br>' +
+        '- <b> ROADS </b>: a table containing the roads. As OSM does not include data on road traffic flows, default values are assigned according to the -Good Practice Guide for Strategic Noise Mapping and the Production of Associated Data on Noise Exposure - Version 2<br><br>' +
+        '&#128161; The user can choose to avoid creating some of these tables by checking the dedicated boxes </br> </br>' +
+        '<img src="/wps_images/import_osm_file.png" alt="Import OSM file" width="95%" align="center">'
 
 inputs = [
         pathFile : [
                 name       : 'Path of the OSM file',
                 title      : 'Path of the OSM file',
                 description: '&#128194; Path of the OSM file, including its extension (.osm, .osm.gz or .osm.pbf).<br>' +
-                             'For example: c:/home/area.osm.pbf',
+                        'For example: c:/home/area.osm.pbf',
                 type       : String.class
         ],
         targetSRID : [
                 name       : 'Target projection identifier',
                 title      : 'Target projection identifier',
                 description: '&#127757; Target projection identifier (also called SRID) of your table.<br>' +
-                             'It should be an <a href="https://epsg.io/" target="_blank">EPSG</a> code, an integer with 4 or 5 digits (ex: <a href="https://epsg.io/3857" target="_blank">3857</a> is Web Mercator projection).<br><br>' +
-                             '&#x1F6A8; The target SRID must be in <b>metric</b> coordinates.',
+                        'It should be an <a href="https://epsg.io/" target="_blank">EPSG</a> code, an integer with 4 or 5 digits (ex: <a href="https://epsg.io/3857" target="_blank">3857</a> is Web Mercator projection).<br><br>' +
+                        '&#x1F6A8; The target SRID must be in <b>metric</b> coordinates.',
                 type       : Integer.class
         ],
         ignoreBuilding : [
                 name       : 'Do not import Buildings',
                 title      : 'Do not import Buildings',
                 description: '&#9989; If the box is checked</i> &#8594; the table BUILDINGS will <b>NOT</b> be created.<br><br>' +
-                             '&#129001; If the box is <b>NOT</b> checked &#8594; the table BUILDINGS will be created and will contain:<br>' +
-                             '- <b> PK </b> : An identifier. It shall be a primary key (INTEGER, PRIMARY KEY)<br>' +
-                             '- <b> THE_GEOM </b> : The 2D geometry of the building (POLYGON or MULTIPOLYGON). <br>' +
-                             '- <b> HEIGHT </b> : The height of the building (FLOAT). ' +
-                             'If this information is not available then it is deduced from the number of floors (if available) with the addition of a small random variation from one building to another. ' +
-                             'Finally, if no information is available, a height of 5m is set by default.',
-                min        : 0, 
+                        '&#129001; If the box is <b>NOT</b> checked &#8594; the table BUILDINGS will be created and will contain:<br>' +
+                        '- <b> PK </b> : An identifier. It shall be a primary key (INTEGER, PRIMARY KEY)<br>' +
+                        '- <b> THE_GEOM </b> : The 2D geometry of the building (POLYGON or MULTIPOLYGON). <br>' +
+                        '- <b> HEIGHT </b> : The height of the building (FLOAT). ' +
+                        'If this information is not available then it is deduced from the number of floors (if available) with the addition of a small random variation from one building to another. ' +
+                        'Finally, if no information is available, a height of 5m is set by default.',
+                min        : 0,
                 max        : 1,
                 type       : Boolean.class
         ],
@@ -87,13 +87,13 @@ inputs = [
                 name       : 'Do not import Surface acoustic absorption',
                 title      : 'Do not import Surface acoustic absorption',
                 description: '&#9989; If the box is checked &#8594; the table GROUND will <b>NOT</b> be created.<br><br>' +
-                             '&#129001; If the box is <b>NOT</b> checked &#8594; the table GROUND will be created and will contain: <br>' +
-                             '- <b> PK </b> : An identifier. It shall be a primary key (INTEGER, PRIMARY KEY)<br>' + 
-                             '- <b> ID_WAY </b> : OSM identifier (INTEGER)<br>' + 
-                             '- <b> THE_GEOM </b> : The 2D geometry of the sources (POLYGON or MULTIPOLYGON)<br>' +
-                             '- <b> PRIORITY </b> : Since NoiseModelling does not allowed overlapping geometries, if this is the case, this column is used to prioritize the geometry that will win over the other one when cutting. The order is given according to the type of land use<br>' +
-                             '- <b> G </b> : The acoustic absorption of a ground (FLOAT) (between 0 : very hard and 1 : very soft)',
-                min        : 0, 
+                        '&#129001; If the box is <b>NOT</b> checked &#8594; the table GROUND will be created and will contain: <br>' +
+                        '- <b> PK </b> : An identifier. It shall be a primary key (INTEGER, PRIMARY KEY)<br>' +
+                        '- <b> ID_WAY </b> : OSM identifier (INTEGER)<br>' +
+                        '- <b> THE_GEOM </b> : The 2D geometry of the sources (POLYGON or MULTIPOLYGON)<br>' +
+                        '- <b> PRIORITY </b> : Since NoiseModelling does not allowed overlapping geometries, if this is the case, this column is used to prioritize the geometry that will win over the other one when cutting. The order is given according to the type of land use<br>' +
+                        '- <b> G </b> : The acoustic absorption of a ground (FLOAT) (between 0 : very hard and 1 : very soft)',
+                min        : 0,
                 max        : 1,
                 type       : Boolean.class
         ],
@@ -101,25 +101,25 @@ inputs = [
                 name       : 'Do not import Roads',
                 title      : 'Do not import Roads',
                 description: '&#9989; If the box is checked &#8594; the table ROADS will <b>NOT</b> be created.<br><br>' +
-                             '&#129001; If the box is <b>NOT</b> checked &#8594; the table ROADS will be created and will contain:<br>' +
-                             '- <b> PK </b> : An identifier. It shall be a primary key (INTEGER, PRIMARY KEY)<br>' +
-                             '- <b> ID_WAY </b> : OSM identifier (INTEGER)<br>' +
-                             '- <b> THE_GEOM </b> : The 2D geometry of the sources (LINESTRING or MULTILINESTRING)<br>' +                        
-                             '- <b> LV_D </b> : Hourly average light and heavy vehicle count (6-18h) (DOUBLE)<br>' +
-                             '- <b> LV_E </b> : Hourly average light and heavy vehicle count (18-22h) (DOUBLE)<br>' +
-                             '- <b> LV_N </b> : Hourly average light and heavy vehicle count (22-6h) (DOUBLE)<br>' +
-                             '- <b> HGV_D </b> : Hourly average heavy vehicle count (6-18h) (DOUBLE)<br>' +
-                             '- <b> HGV_E </b> : Hourly average heavy vehicle count (18-22h) (DOUBLE)<br>' +
-                             '- <b> HGV_N </b> : Hourly average heavy vehicle count (22-6h) (DOUBLE)<br>' +
-                             '- <b> LV_SPD_D </b> : Hourly average light vehicle speed (6-18h) (DOUBLE)<br>' +
-                             '- <b> LV_SPD_E </b> : Hourly average light vehicle speed (18-22h) (DOUBLE)<br>' +
-                             '- <b> LV_SPD_N </b> : Hourly average light vehicle speed (22-6h) (DOUBLE)<br>' +
-                             '- <b> HGV_SPD_D </b> : Hourly average heavy vehicle speed (6-18h) (DOUBLE)<br>' +
-                             '- <b> HGV_SPD_E </b> : Hourly average heavy vehicle speed (18-22h) (DOUBLE)<br>' +
-                             '- <b> HGV_SPD_N </b> : Hourly average heavy vehicle speed (22-6h) (DOUBLE)<br>' +
-                             '- <b> PVMT </b> : CNOSSOS road pavement identifier (ex: NL05) (VARCHAR)<br> <br>' +
-                             '&#128161; <b>These information are deduced from the roads importance in OSM.</b>.',
-                min        : 0, 
+                        '&#129001; If the box is <b>NOT</b> checked &#8594; the table ROADS will be created and will contain:<br>' +
+                        '- <b> PK </b> : An identifier. It shall be a primary key (INTEGER, PRIMARY KEY)<br>' +
+                        '- <b> ID_WAY </b> : OSM identifier (INTEGER)<br>' +
+                        '- <b> THE_GEOM </b> : The 2D geometry of the sources (LINESTRING or MULTILINESTRING)<br>' +
+                        '- <b> LV_D </b> : Hourly average light and heavy vehicle count (6-18h) (DOUBLE)<br>' +
+                        '- <b> LV_E </b> : Hourly average light and heavy vehicle count (18-22h) (DOUBLE)<br>' +
+                        '- <b> LV_N </b> : Hourly average light and heavy vehicle count (22-6h) (DOUBLE)<br>' +
+                        '- <b> HGV_D </b> : Hourly average heavy vehicle count (6-18h) (DOUBLE)<br>' +
+                        '- <b> HGV_E </b> : Hourly average heavy vehicle count (18-22h) (DOUBLE)<br>' +
+                        '- <b> HGV_N </b> : Hourly average heavy vehicle count (22-6h) (DOUBLE)<br>' +
+                        '- <b> LV_SPD_D </b> : Hourly average light vehicle speed (6-18h) (DOUBLE)<br>' +
+                        '- <b> LV_SPD_E </b> : Hourly average light vehicle speed (18-22h) (DOUBLE)<br>' +
+                        '- <b> LV_SPD_N </b> : Hourly average light vehicle speed (22-6h) (DOUBLE)<br>' +
+                        '- <b> HGV_SPD_D </b> : Hourly average heavy vehicle speed (6-18h) (DOUBLE)<br>' +
+                        '- <b> HGV_SPD_E </b> : Hourly average heavy vehicle speed (18-22h) (DOUBLE)<br>' +
+                        '- <b> HGV_SPD_N </b> : Hourly average heavy vehicle speed (22-6h) (DOUBLE)<br>' +
+                        '- <b> PVMT </b> : CNOSSOS road pavement identifier (ex: NL05) (VARCHAR)<br> <br>' +
+                        '&#128161; <b>These information are deduced from the roads importance in OSM.</b>.',
+                min        : 0,
                 max        : 1,
                 type       : Boolean.class
         ],
@@ -127,7 +127,7 @@ inputs = [
                 name       : 'Remove tunnels from OSM data',
                 title      : 'Remove tunnels from OSM data',
                 description: '&#9989; If checked, remove roads from OSM data that contain OSM tag <b>tunnel=yes</b>.',
-                min        : 0, 
+                min        : 0,
                 max        : 1,
                 type       : Boolean.class
         ],
@@ -135,29 +135,29 @@ inputs = [
                 name       : 'Eliminate no traffic roads',
                 title      : 'Eliminate no traffic roads',
                 description: '<b>If checked</b>, only roads with these "TYPE" values will remain:<br>' +
-                             '- bus_guideway: Dedicated lanes or tracks for buses<br>' +
-                             '- busway: Bus-only lanes<br>' +
-                             '- living_street: Residential streets with pedestrian priority<br>' +
-                             '- motorway: High-speed, restricted-access highways<br>' +
-                             '- motorway_link: Connector ramps for motorways<br>' +
-                             '- primary: Major roads linking large cities<br>' +
-                             '- primary_link: Connector ramps for primary roads<br>' +
-                             '- raceway: Racing tracks<br>' +
-                             '- residential: Roads in residential areas<br>' +
-                             '- road: Generic roads<br>' +
-                             '- secondary: Roads connecting smaller towns<br>' +
-                             '- secondary_link: Connector ramps for secondary roads<br>' +
-                             '- service: Service lanes (access to parking lots, etc.)<br>' +
-                             '- tertiary: Roads connecting villages and hamlets<br>' +
-                             '- tertiary_link: Connector ramps for tertiary roads<br>' +
-                             '- trunk: Important roads that are not motorways<br>' +
-                             '- trunk_link: Connector ramps for trunk roads<br>' +
-                             '- unclassified: Minor roads not fitting higher classifications<br>' +
-                             '- rest_area: Areas for rest along roads<br>' +
-                             '- traffic_calming: Traffic calming features (speed bumps, etc.)<br>' +
-                             '- traffic_island: Traffic islands<br><br>' +
-                             '<b>If not checked</b>, all roads are processed as before.',
-                min        : 0, 
+                        '- bus_guideway: Dedicated lanes or tracks for buses<br>' +
+                        '- busway: Bus-only lanes<br>' +
+                        '- living_street: Residential streets with pedestrian priority<br>' +
+                        '- motorway: High-speed, restricted-access highways<br>' +
+                        '- motorway_link: Connector ramps for motorways<br>' +
+                        '- primary: Major roads linking large cities<br>' +
+                        '- primary_link: Connector ramps for primary roads<br>' +
+                        '- raceway: Racing tracks<br>' +
+                        '- residential: Roads in residential areas<br>' +
+                        '- road: Generic roads<br>' +
+                        '- secondary: Roads connecting smaller towns<br>' +
+                        '- secondary_link: Connector ramps for secondary roads<br>' +
+                        '- service: Service lanes (access to parking lots, etc.)<br>' +
+                        '- tertiary: Roads connecting villages and hamlets<br>' +
+                        '- tertiary_link: Connector ramps for tertiary roads<br>' +
+                        '- trunk: Important roads that are not motorways<br>' +
+                        '- trunk_link: Connector ramps for trunk roads<br>' +
+                        '- unclassified: Minor roads not fitting higher classifications<br>' +
+                        '- rest_area: Areas for rest along roads<br>' +
+                        '- traffic_calming: Traffic calming features (speed bumps, etc.)<br>' +
+                        '- traffic_island: Traffic islands<br><br>' +
+                        '<b>If not checked</b>, all roads are processed as before.',
+                min        : 0,
                 max        : 1,
                 type       : Boolean.class
         ]
@@ -171,6 +171,7 @@ outputs = [
                 type: String.class
         ]
 ]
+
 
 // Open Connection to Geoserver
 static Connection openGeoserverDataStoreConnection(String dbName) {
@@ -239,6 +240,159 @@ def exec(Connection connection, input) {
         eliminateNoTrafficRoads = input['eliminateNoTrafficRoads'] as Boolean
     }
 
+    def roadLimits = [
+            "AR:motorway"         : "130",
+            "AR:rural"            : "110",
+            "AR:urban"            : "40",
+            "AR:urban:primary"    : "60",
+            "AR:urban:secondary"  : "60",
+            "AT:bicycle_road"     : "30",
+            "AT:city_limit"       : "35",
+            "AT:motorway"         : "130",
+            "AT:rural"            : "100",
+            "AT:shared_zone"      : "25",
+            "AT:trunk"            : "100",
+            "AT:urban"            : "50",
+            "AT:zone"             : "25",
+            "BE:cyclestreet"      : "30",
+            "BE:living_street"    : "20",
+            "BE:motorway"         : "120",
+            "BE:trunk"            : "120",
+            "BE:zone"             : "30",
+            "BE:zone30"           : "30",
+            "BE-BRU:rural"        : "70",
+            "BE-BRU:urban"        : "30",
+            "BE-VLG:rural"        : "70",
+            "BE-VLG:urban"        : "50",
+            "BE-WAL:rural"        : "90",
+            "BE-WAL:urban"        : "50",
+            "BG:living_street"    : "20",
+            "BG:motorway"         : "140",
+            "BG:rural"            : "90",
+            "BG:trunk"            : "120",
+            "BG:urban"            : "50",
+            "BY:living_street"    : "20",
+            "BY:motorway"         : "110",
+            "BY:rural"            : "90",
+            "BY:urban"            : "60",
+            "CA-AB:rural"         : "90",
+            "CA-AB:urban"         : "65",
+            "CA-BC:rural"         : "80",
+            "CA-BC:urban"         : "50",
+            "CA-MB:rural"         : "90",
+            "CA-MB:urban"         : "50",
+            "CA-ON:rural"         : "80",
+            "CA-ON:urban"         : "50",
+            "CA-QC:motorway"      : "100",
+            "CA-QC:rural"         : "75",
+            "CA-QC:urban"         : "50",
+            "CA-SK:nsl"           : "80",
+            "CH:rural"            : "80",
+            "CZ:living_street"    : "20",
+            "CZ:motorway"         : "130",
+            "CZ:pedestrian_zone"  : "20",
+            "CZ:rural"            : "90",
+            "CZ:trunk"            : "110",
+            "CZ:urban"            : "50",
+            "CZ:urban_motorway"   : "80",
+            "CZ:urban_trunk"      : "80",
+            "DE:bicycle_road"     : "30",
+            "DE:living_street"    : "10",
+            "DE:motorway"         : "130",
+            "DE:rural"            : "90",
+            "DE:urban"            : "50",
+            "DK:motorway"         : "130",
+            "DK:rural"            : "80",
+            "DK:urban"            : "50",
+            "EE:rural"            : "90",
+            "EE:urban"            : "50",
+            "ES:rural"            : "90",
+            "FI:rural"            : "80",
+            "FI:urban"            : "50",
+            "FR:motorway"         : "130",
+            "FR:rural"            : "80",
+            "FR:urban"            : "50",
+            "FR:zone30"           : "30",
+            "GB:motorway"         : "70 mph",
+            "GB:nsl_dual"         : "70 mph",
+            "GB:nsl_restricted"   : "30 mph",
+            "GB:nsl_single"       : "60 mph",
+            "GR:living_street"    : "20",
+            "GR:motorway"         : "130",
+            "GR:rural"            : "90",
+            "GR:trunk"            : "110",
+            "HU:living_street"    : "20",
+            "HU:motorway"         : "130",
+            "HU:rural"            : "90",
+            "HU:trunk"            : "110",
+            "ID:residential"      : "30",
+            "ID:rural"            : "80",
+            "IL:living_street"    : "30",
+            "IL:motorway"         : "110",
+            "IL:rural"            : "90",
+            "IL:trunk"            : "100",
+            "IN:motorway"         : "120",
+            "IN:rural"            : "70",
+            "IT:rural"            : "90",
+            "KR:rural"            : "60",
+            "LT:rural"            : "90",
+            "NO:rural"            : "80",
+            "PH:rural"            : "80",
+            "PT:rural"            : "90",
+            "RO:rural"            : "90",
+            "RS:rural"            : "80",
+            "RU:rural"            : "90",
+            "SE:rural"            : "70",
+            "SI:rural"            : "90",
+            "SK:rural"            : "90",
+            "TR:rural"            : "90",
+            "UA:rural"            : "90",
+            "UZ:rural"            : "100",
+            "ZA:rural"            : "100",
+            "IL:urban"            : "50",
+            "IL:rural2"           : "85",
+            "IT:motorway"         : "130",
+            "JP:nsl"              : "60",
+            "JP:motorway"         : "100",
+            "KR:trunk"            : "80",
+            "KR:motorway"         : "80",
+            "PH:motorway"         : "100",
+            "PT:trunk"            : "100",
+            "PT:motorway"         : "120",
+            "RO:trunk"            : "100",
+            "RO:motorway"         : "130",
+            "RU:living_street"    : "20",
+            "RU:motorway"         : "110",
+            "RS:living_street"    : "10",
+            "RS:trunk"            : "100",
+            "RS:motorway"         : "130",
+            "SK:living_street"    : "20",
+            "SK:trunk"            : "90",
+            "SK:motorway"         : "130",
+            "SK:motorway_urban"   : "90",
+            "SI:trunk"            : "110",
+            "SI:motorway"         : "130",
+            "ZA:motorway"         : "120",
+            "ES:living_street"    : "20",
+            "ES:zone30"           : "30",
+            "ES:trunk"            : "90",
+            "ES:motorway"         : "120",
+            "CH:trunk"            : "100",
+            "CH:motorway"         : "120",
+            "TR:living_street"    : "20",
+            "TR:zone30"           : "30",
+            "TR:trunk"            : "110",
+            "TR:motorway"         : "130",
+            "UA:living_street"    : "20",
+            "UA:trunk"            : "110",
+            "UA:motorway"         : "130",
+            "UK:motorway"         : "70 mph",
+            "UK:nsl_dual"         : "70 mph",
+            "UK:nsl_single"       : "60 mph",
+            "UZ:living_street"    : "30",
+            "UZ:motorway"         : "110",
+    ]
+
     def reader
     if (pathFile.toLowerCase(Locale.getDefault()).endsWith(".pbf")) {
         InputStream inputStream = new FileInputStream(pathFile);
@@ -251,7 +405,7 @@ def exec(Connection connection, input) {
         throw new IllegalArgumentException("File extension not known.Should be pbf, osm or osm.gz but got " + pathFile)
     }
 
-    OsmHandler handler = new OsmHandler(logger, ignoreBuilding, ignoreRoads, ignoreGround, removeTunnels)
+    OsmHandler handler = new OsmHandler(logger, ignoreBuilding, ignoreRoads, ignoreGround, removeTunnels, roadLimits)
     reader.setSink(handler);
     reader.run();
 
@@ -260,9 +414,9 @@ def exec(Connection connection, input) {
     // If eliminateNoTrafficRoads is true, filter the roads by the allowed list.
     if (eliminateNoTrafficRoads && !ignoreRoads) {
         def validRoadTypes = [
-            "bus_guideway", "busway", "living_street", "motorway", "motorway_link", "primary", "primary_link",
-            "raceway", "residential", "road", "secondary", "secondary_link", "service", "tertiary", "tertiary_link",
-            "trunk", "trunk_link", "unclassified", "rest_area", "traffic_calming", "traffic_island"
+                "bus_guideway", "busway", "living_street", "motorway", "motorway_link", "primary", "primary_link",
+                "raceway", "residential", "road", "secondary", "secondary_link", "service", "tertiary", "tertiary_link",
+                "trunk", "trunk_link", "unclassified", "rest_area", "traffic_calming", "traffic_island"
         ]
         handler.roads = handler.roads.findAll { validRoadTypes.contains(it.type) }
     }
@@ -272,8 +426,8 @@ def exec(Connection connection, input) {
         String tableName = "MAP_BUILDINGS_GEOM";
 
         sql.execute("DROP TABLE IF EXISTS " + tableName)
-        sql.execute("CREATE TABLE " + tableName + '''( 
-            ID_WAY integer PRIMARY KEY, 
+        sql.execute("CREATE TABLE " + tableName + '''(
+            ID_WAY integer PRIMARY KEY,
             THE_GEOM geometry,
             HEIGHT real
         );''')
@@ -287,17 +441,17 @@ def exec(Connection connection, input) {
             -- List buildings that intersects with other buildings that have a greater area
             DROP TABLE IF EXISTS tmp_relation_buildings_buildings;
             CREATE TABLE tmp_relation_buildings_buildings AS SELECT s1.ID_WAY as PK_BUILDING, S2.ID_WAY as PK2_BUILDING FROM MAP_BUILDINGS_GEOM S1, MAP_BUILDINGS_GEOM S2 WHERE ST_AREA(S1.THE_GEOM) < ST_AREA(S2.THE_GEOM) AND S1.THE_GEOM && S2.THE_GEOM AND ST_DISTANCE(S1.THE_GEOM, S2.THE_GEOM) <= 0.1;
-            
+
             -- Alter that small area buildings by removing shared area
             DROP TABLE IF EXISTS tmp_buildings_truncated;
             CREATE TABLE tmp_buildings_truncated AS SELECT PK_BUILDING, ST_DIFFERENCE(s1.the_geom, ST_BUFFER(ST_ACCUM(s2.the_geom), 0.1, 'join=mitre')) the_geom, s1.HEIGHT HEIGHT from tmp_relation_buildings_buildings r, MAP_BUILDINGS_GEOM s1, MAP_BUILDINGS_GEOM s2 WHERE PK_BUILDING = S1.ID_WAY AND PK2_BUILDING = S2.ID_WAY  GROUP BY PK_BUILDING;
-            
-            -- Merge original buildings with altered buildings 
+
+            -- Merge original buildings with altered buildings
             DROP TABLE IF EXISTS BUILDINGS;
             CREATE TABLE BUILDINGS(PK INTEGER PRIMARY KEY, THE_GEOM GEOMETRY, HEIGHT real) AS SELECT s.id_way, ST_SETSRID(s.the_geom, '''+srid+'''), s.HEIGHT from  MAP_BUILDINGS_GEOM s where id_way not in (select PK_BUILDING from tmp_buildings_truncated) UNION ALL select PK_BUILDING, ST_SETSRID(the_geom, '''+srid+'''), HEIGHT from tmp_buildings_truncated WHERE NOT st_isempty(the_geom);
-    
+
             DELETE FROM BUILDINGS WHERE the_geom IS NULL OR ST_IsEmpty(the_geom);
-             
+
             DROP TABLE IF EXISTS tmp_buildings_truncated;
             DROP TABLE IF EXISTS tmp_relation_buildings_buildings;
             DROP TABLE IF EXISTS MAP_BUILDINGS_GEOM;
@@ -396,13 +550,15 @@ public class OsmHandler implements Sink {
     boolean ignoreGround
     boolean removeTunnels
     Object parametersMap
+    Map roadLimits
 
-    OsmHandler(Logger logger, boolean ignoreBuildings, boolean ignoreRoads, boolean ignoreGround, boolean removeTunnels) {
+    OsmHandler(Logger logger, boolean ignoreBuildings, boolean ignoreRoads, boolean ignoreGround, boolean removeTunnels, Map roadLimits) {
         this.logger = logger
         this.ignoreBuildings = ignoreBuildings
         this.ignoreRoads = ignoreRoads
         this.ignoreGround = ignoreGround
         this.removeTunnels = removeTunnels
+        this.roadLimits = roadLimits
 
         // This is a copy of the GeoClimate file : buildingsParams.json (https://github.com/orbisgis/geoclimate/tree/master/osm/src/main/resources/org/orbisgis/geoclimate/osm)
         String buildingParams = """{
@@ -1127,11 +1283,17 @@ public class OsmHandler implements Sink {
                 }
                 if (isBuilding) {
                     if (!trueHeightFound && "building:levels".equalsIgnoreCase(tag.getKey())) {
-                        height = height - 4 + Double.parseDouble(tag.getValue().replaceAll("[^0-9]+", "")) * 3.0;
+                        String levelsStr = tag.getValue().replaceAll("[^0-9]+", "")
+                        if (!levelsStr.isEmpty()) {
+                            height = height - 4 + Double.parseDouble(levelsStr) * 3.0;
+                        }
                     }
                     if ("height".equalsIgnoreCase(tag.getKey())) {
-                        height = Double.parseDouble(tag.getValue().replaceAll("[^0-9]+", ""));
-                        trueHeightFound = true;
+                        String heightStr = tag.getValue().replaceAll("[^0-9]+", "")
+                        if (!heightStr.isEmpty()) {
+                            height = Double.parseDouble(heightStr);
+                            trueHeightFound = true;
+                        }
                     }
                 }
             }
@@ -1143,7 +1305,7 @@ public class OsmHandler implements Sink {
                 if (removeTunnels && isTunnel) {
                     return
                 }
-                roads.add(new Road(way));
+                roads.add(new Road(way, roadLimits));
                 nb_roads++;
             }
             if (!ignoreGround && !isBuilding && !isRoad && closedWay) {
@@ -1343,13 +1505,17 @@ public class Road {
     String type = null;
     int category = 5;
 
-    Road(Way way) {
+    Road(Way way, Map roadLimits) {
         this.way = way;
         this.id = way.getId();
         for (Tag tag : way.getTags()) {
             if ("maxspeed".equalsIgnoreCase(tag.getKey())) {
+                String speedValue = tag.getValue()
+                if (!speedValue.matches(".*[0-9].*")) {
+                    speedValue = roadLimits.getOrDefault(speedValue, "0")
+                }
                 try {
-                    this.maxspeed = Double.parseDouble(tag.getValue().replaceAll("[^0-9]+", ""));
+                    this.maxspeed = Double.parseDouble(speedValue.replaceAll("[^0-9]+", ""));
                 }
                 catch (NumberFormatException e) {
                     // in case maxspeed does not contain a numerical value
@@ -1685,4 +1851,3 @@ public class Ground {
         this.geom = geom;
     }
 }
-

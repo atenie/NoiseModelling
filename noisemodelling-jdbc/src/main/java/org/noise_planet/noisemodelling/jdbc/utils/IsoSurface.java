@@ -382,12 +382,12 @@ public class IsoSurface {
         if(smooth) {
             Quadtree segmentTree = new Quadtree();
             // Step 1: Union triangles per iso level in parallel (independent per level)
-            log.info("processCell step [1/3]");
+            log.info("processCell smooth processing step [1/3]");
             Map<Short, Geometry> mergedGeoms = polys.entrySet().parallelStream()
                     .collect(Collectors.toMap(Map.Entry::getKey,
                             e -> new CascadedPolygonUnion(e.getValue()).union()));
             // Step 2: Sequential bezier control point computation (shared segmentTree)
-            log.info("processCell step [2/3]");
+            log.info("processCell smooth processing step [2/3]");
             for (Map.Entry<Short, Geometry> e : mergedGeoms.entrySet()) {
                 ArrayList<Polygon> polygons = new ArrayList<>();
                 explode(e.getValue(), polygons);
@@ -401,7 +401,7 @@ public class IsoSurface {
                 polys.get(e.getKey()).add(e.getValue());
             }
             // Step 3: Parallel bezier curve generation (segmentTree is read-only here)
-            log.info("processCell step [3/3]");
+            log.info("processCell smooth processing step [3/3]");
             polys.entrySet().parallelStream().forEach(entry -> {
                 if(entry.getValue().size() == 1) {
                     ArrayList<Geometry> newPolygons = new ArrayList<>();
@@ -434,6 +434,7 @@ public class IsoSurface {
         final Map<Short, List<Polygon>> polygonsByLevel;
         if(!smooth && mergeTriangles) {
             // Union per iso level in parallel (independent per level)
+            log.info("processCell collect polygons: parallel union");
             polygonsByLevel = polys.entrySet().parallelStream()
                     .collect(Collectors.toMap(Map.Entry::getKey, e -> {
                         ArrayList<Polygon> result = new ArrayList<>();
@@ -446,6 +447,7 @@ public class IsoSurface {
                         return result;
                     }));
         } else {
+            log.info("processCell collect polygons: simple union");
             polygonsByLevel = new HashMap<>();
             for (Map.Entry<Short, ArrayList<Geometry>> e : polys.entrySet()) {
                 ArrayList<Polygon> result = new ArrayList<>();
@@ -456,6 +458,7 @@ public class IsoSurface {
         int batchSize = 0;
         for (Map.Entry<Short, List<Polygon>> entry : polygonsByLevel.entrySet()) {
             for(Polygon polygon : entry.getValue()) {
+                log.info("processCell batch insert");
                 int geomDim = 0;
                 boolean mixedDimension = false;
                 for(Coordinate coordinate : polygon.getExteriorRing().getCoordinates()) {
@@ -620,6 +623,7 @@ public class IsoSurface {
                 if(aggregateByPeriod) {
                     statement.setString(1, period);
                 }
+                log.info("IsoSurface: period {} / {}", periods.indexOf(period), periods.size());
                 // Cache iso for the current processing cell
                 Map<Short, ArrayList<Geometry>> polyMap = new HashMap<>();
                 int processedCells = 0;

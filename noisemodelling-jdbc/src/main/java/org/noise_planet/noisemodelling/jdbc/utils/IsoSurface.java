@@ -681,6 +681,7 @@ public class IsoSurface {
                         throw new SQLException("Missing field in input tables");
                     }
                     while (rs.next()) {
+                        log.info("IsoSurface progress: processing ResultSet item");
                         int cellId = rs.getInt(cell_id);
                         // Process polygons of last cell
                         if (cellId != lastCellId && lastCellId != -1) {

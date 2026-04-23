@@ -376,6 +376,9 @@ public class IsoSurface {
      * @param aggregateByPeriod Output time period in the fields
      */
     void processCell(PreparedStatement ps, int cellId, Map<Short, ArrayList<Geometry>> polys, String period, boolean aggregateByPeriod) throws SQLException {
+        long startTime = System.currentTimeMillis();
+        int inputTriangles = polys.values().stream().mapToInt(List::size).sum();
+        log.info("processCell start: cellId={} isoLevels={} inputTriangles={}", cellId, polys.size(), inputTriangles);
         if(smooth) {
             Quadtree segmentTree = new Quadtree();
             // Step 1: Union triangles per iso level in parallel (independent per level)
@@ -496,6 +499,9 @@ public class IsoSurface {
         if (batchSize > 0) {
             ps.executeBatch();
         }
+        int outputPolygons = polygonsByLevel.values().stream().mapToInt(List::size).sum();
+        log.info("processCell done:  cellId={} outputPolygons={} elapsed={}ms",
+                cellId, outputPolygons, System.currentTimeMillis() - startTime);
     }
 
     /**

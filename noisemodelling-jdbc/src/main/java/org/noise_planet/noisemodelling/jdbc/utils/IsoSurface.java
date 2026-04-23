@@ -382,10 +382,12 @@ public class IsoSurface {
         if(smooth) {
             Quadtree segmentTree = new Quadtree();
             // Step 1: Union triangles per iso level in parallel (independent per level)
+            log.info("processCell step [1/3]");
             Map<Short, Geometry> mergedGeoms = polys.entrySet().parallelStream()
                     .collect(Collectors.toMap(Map.Entry::getKey,
                             e -> new CascadedPolygonUnion(e.getValue()).union()));
             // Step 2: Sequential bezier control point computation (shared segmentTree)
+            log.info("processCell step [2/3]");
             for (Map.Entry<Short, Geometry> e : mergedGeoms.entrySet()) {
                 ArrayList<Polygon> polygons = new ArrayList<>();
                 explode(e.getValue(), polygons);
@@ -399,6 +401,7 @@ public class IsoSurface {
                 polys.get(e.getKey()).add(e.getValue());
             }
             // Step 3: Parallel bezier curve generation (segmentTree is read-only here)
+            log.info("processCell step [3/3]");
             polys.entrySet().parallelStream().forEach(entry -> {
                 if(entry.getValue().size() == 1) {
                     ArrayList<Geometry> newPolygons = new ArrayList<>();

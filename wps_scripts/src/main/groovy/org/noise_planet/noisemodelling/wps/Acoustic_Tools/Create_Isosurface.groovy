@@ -29,7 +29,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 import java.sql.Connection
-import java.sql.Statement
 
 title = 'Create isosurfaces from a NoiseModelling resulting table and its associated TRIANGLES table.'
 
@@ -148,16 +147,16 @@ def exec(Connection connection, Map input) {
         isoSurface.setSmoothCoefficient(coefficient)
     }
 
-    Statement countSt = connection.createStatement()
     long triangleCount = 0
     long receiverCount = 0
-    try (def rs = countSt.executeQuery("SELECT COUNT(*) FROM TRIANGLES")) {
-        if (rs.next()) triangleCount = rs.getLong(1)
+    connection.createStatement().withCloseable { countSt ->
+        countSt.executeQuery("SELECT COUNT(*) FROM TRIANGLES").withCloseable { rs ->
+            if (rs.next()) triangleCount = rs.getLong(1)
+        }
+        countSt.executeQuery("SELECT COUNT(*) FROM ${levelTable}").withCloseable { rs ->
+            if (rs.next()) receiverCount = rs.getLong(1)
+        }
     }
-    try (def rs = countSt.executeQuery("SELECT COUNT(*) FROM ${levelTable}")) {
-        if (rs.next()) receiverCount = rs.getLong(1)
-    }
-    countSt.close()
     logger.info("Processing {} triangles and {} receivers from table '{}'", triangleCount, receiverCount, levelTable)
 
     isoSurface.createTable(connection, "IDRECEIVER")

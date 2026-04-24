@@ -41,7 +41,7 @@ import static org.noise_planet.noisemodelling.emission.utils.Utils.dbaToW;
  */
 public class IsoSurface {
     Logger log = LoggerFactory.getLogger(IsoSurface.class);
-    static final int BATCH_MAX_SIZE = 500;
+    static final int BATCH_MAX_SIZE = 20;
     String pointTable = NoiseMapDatabaseParameters.DEFAULT_RECEIVERS_LEVEL_TABLE_NAME;
     String triangleTable = "TRIANGLES";
     String outputTable = "CONTOURING_NOISE_MAP";
